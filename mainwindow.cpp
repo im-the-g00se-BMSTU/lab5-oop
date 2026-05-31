@@ -1,6 +1,8 @@
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
 
+#include <QMessageBox>
+
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent),
     ui(new Ui::MainWindow),
@@ -26,6 +28,7 @@ void MainWindow::setupConnections() {
     connectHallButtons();
     connectCabinButtons();
     connectStateLabels();
+    connectSimulationSwitch();
     connect(dispatcher, &LiftDispatcher::eventReported, logger, &SimulationLogger::write);
 }
 
@@ -33,7 +36,10 @@ void MainWindow::connectHallButtons() {
     int floor = 1;
     for (QPushButton* button : floorButtons) {
         connect(button, &QPushButton::clicked, this, [this, floor]() {
-            dispatcher->requestFromHall(floor);
+            if (isBmstuSimulationEnabled())
+                reportStuckLift();
+            else
+                dispatcher->requestFromHall(floor);
         });
         ++floor;
     }
@@ -43,7 +49,10 @@ void MainWindow::connectCabinButtons() {
     int floor = 1;
     for (QPushButton* button : cabinButtons) {
         connect(button, &QPushButton::clicked, this, [this, floor]() {
-            dispatcher->requestFromCabin(floor);
+            if (isBmstuSimulationEnabled())
+                reportStuckLift();
+            else
+                dispatcher->requestFromCabin(floor);
         });
         ++floor;
     }
@@ -58,6 +67,18 @@ void MainWindow::connectStateLabels() {
     connect(dispatcher, &LiftDispatcher::dispatcherStateChanged, ui->controllerStateValueLabel, &QLabel::setText);
     connect(dispatcher, &LiftDispatcher::carStateChanged, ui->cabinStateValueLabel, &QLabel::setText);
     connect(dispatcher, &LiftDispatcher::doorStateChanged, ui->doorStateValueLabel, &QLabel::setText);
+}
+
+void MainWindow::connectSimulationSwitch() {
+    connect(ui->bmstuCheckBox, &QCheckBox::toggled, dispatcher, &LiftDispatcher::setMovementPaused);
+}
+
+bool MainWindow::isBmstuSimulationEnabled() const {
+    return ui->bmstuCheckBox->isChecked();
+}
+
+void MainWindow::reportStuckLift() {
+    QMessageBox::information(this, "Lift is stuck", "Lift is stuck, better use stairs");
 }
 
 void MainWindow::drawCarAtFloor(int floor) {

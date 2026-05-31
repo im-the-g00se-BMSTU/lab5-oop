@@ -8,6 +8,7 @@
 #include "lift_constants.h"
 
 #include <QObject>
+#include <map>
 
 class LiftDispatcher : public QObject {
     Q_OBJECT
@@ -26,7 +27,9 @@ private:
     RoutePlanner planner;
     DispatcherState state;
     int destinationFloor;
+    std::map<DispatcherState, QString> stateNames;
 
+    void setupStateNames();
     QString stateText() const;
     QString originText(LiftRequestOrigin origin) const;
     void changeState(DispatcherState nextState);
@@ -50,6 +53,7 @@ public:
 public slots:
     void requestFromHall(int floor);
     void requestFromCabin(int floor);
+    void setMovementPaused(bool paused);
 
 signals:
     void currentFloorChanged(int floor);

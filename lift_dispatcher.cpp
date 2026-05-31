@@ -6,17 +6,22 @@ LiftDispatcher::LiftDispatcher(QObject* parent)
     doors(new DoorMechanism(this)),
     state(DispatcherState::Idle),
     destinationFloor(LiftConstants::firstFloor) {
+    setupStateNames();
     connectParts();
 }
 
+void LiftDispatcher::setupStateNames() {
+    stateNames[DispatcherState::Idle] = "IDLE";
+    stateNames[DispatcherState::SelectingTarget] = "SELECTING_TARGET";
+    stateNames[DispatcherState::Moving] = "MOVING";
+    stateNames[DispatcherState::ServingFloor] = "SERVING_FLOOR";
+}
+
 QString LiftDispatcher::stateText() const {
-    QString text = "IDLE";
-    if (state == DispatcherState::SelectingTarget)
-        text = "SELECTING_TARGET";
-    if (state == DispatcherState::Moving)
-        text = "MOVING";
-    if (state == DispatcherState::ServingFloor)
-        text = "SERVING_FLOOR";
+    QString text;
+    auto stateName = stateNames.find(state);
+    if (stateName != stateNames.end())
+        text = stateName->second;
     return text;
 }
 
@@ -119,4 +124,8 @@ void LiftDispatcher::requestFromHall(int floor) {
 
 void LiftDispatcher::requestFromCabin(int floor) {
     addRequest(floor, LiftRequestOrigin::Cabin);
+}
+
+void LiftDispatcher::setMovementPaused(bool paused) {
+    car->setMovementPaused(paused);
 }

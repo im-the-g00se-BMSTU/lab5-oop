@@ -5,6 +5,7 @@
 
 #include <QObject>
 #include <QTimer>
+#include <map>
 
 class DoorMechanism : public QObject {
     Q_OBJECT
@@ -21,7 +22,9 @@ private:
     QTimer stayingOpenTimer;
     QTimer closingTimer;
     DoorState state;
+    std::map<DoorState, QString> stateNames;
 
+    void setupStateNames();
     QString stateText() const;
     void changeState(DoorState nextState);
     void stopAllTimers();

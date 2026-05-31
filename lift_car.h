@@ -5,6 +5,7 @@
 
 #include <QObject>
 #include <QTimer>
+#include <map>
 
 class LiftCar : public QObject {
     Q_OBJECT
@@ -15,15 +16,20 @@ private:
         Preparing,
         Moving,
         Locked,
-        Ready
+        Ready,
+        Stuck
     };
 
     QTimer travelTimer;
     int activeFloor;
     int currentDirection;
     int plannedDirection;
+    bool movementPaused;
     CarState state;
+    CarState stateBeforePause;
+    std::map<CarState, QString> stateNames;
 
+    void setupStateNames();
     QString stateText() const;
     void changeState(CarState nextState);
     void setDirection(int direction);
@@ -42,6 +48,7 @@ public:
     void stopAtCurrentFloor();
     void lockCabin();
     void releaseCabin();
+    void setMovementPaused(bool paused);
 
 signals:
     void floorReached(int floor);

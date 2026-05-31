@@ -3,6 +3,7 @@
 DoorMechanism::DoorMechanism(QObject* parent)
     : QObject(parent),
     state(DoorState::Closed) {
+    setupStateNames();
     openingTimer.setSingleShot(true);
     stayingOpenTimer.setSingleShot(true);
     closingTimer.setSingleShot(true);
@@ -12,14 +13,18 @@ DoorMechanism::DoorMechanism(QObject* parent)
     connect(&closingTimer, &QTimer::timeout, this, &DoorMechanism::finishClosing);
 }
 
+void DoorMechanism::setupStateNames() {
+    stateNames[DoorState::Opening] = "OPENING";
+    stateNames[DoorState::Open] = "OPEN";
+    stateNames[DoorState::Closing] = "CLOSING";
+    stateNames[DoorState::Closed] = "CLOSED";
+}
+
 QString DoorMechanism::stateText() const {
-    QString text = "CLOSED";
-    if (state == DoorState::Opening)
-        text = "OPENING";
-    if (state == DoorState::Open)
-        text = "OPEN";
-    if (state == DoorState::Closing)
-        text = "CLOSING";
+    QString text;
+    auto stateName = stateNames.find(state);
+    if (stateName != stateNames.end())
+        text = stateName->second;
     return text;
 }
 
@@ -54,8 +59,7 @@ void DoorMechanism::beginClosing() {
 }
 
 void DoorMechanism::openDoors() {
-    bool canOpen = state == DoorState::Closed || state == DoorState::Closing;
-    if (canOpen)
+    if (state == DoorState::Closed || state == DoorState::Closing)
         beginOpening();
 }
 

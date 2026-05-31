@@ -113,6 +113,27 @@ QLabel#currentFloorValueLabel, QLabel#targetFloorValueLabel, QLabel#controllerSt
     color: #ffffff;
     min-height: 32px;
     padding: 4px 12px;
+}
+
+QCheckBox {
+    color: #ffffff;
+    font-family: &quot;Nunito&quot;;
+    font-size: 14px;
+    font-weight: 700;
+    spacing: 8px;
+}
+
+QCheckBox::indicator {
+    background-color: #29292a;
+    border: 1px solid #3a3a3d;
+    border-radius: 4px;
+    height: 18px;
+    width: 18px;
+}
+
+QCheckBox::indicator:checked {
+    background-color: #0068ff;
+    border-color: #0b7cff;
 }</string>
    </property>
    <layout class="QHBoxLayout" name="horizontalLayout" stretch="5,2">
@@ -556,6 +577,13 @@ QLabel#currentFloorValueLabel, QLabel#targetFloorValueLabel, QLabel#controllerSt
           </widget>
          </item>
         </layout>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="bmstuCheckBox">
+         <property name="text">
+          <string>Simulate BMSTU lift</string>
+         </property>
+        </widget>
        </item>
       </layout>
      </widget>

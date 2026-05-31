@@ -1,10 +1,9 @@
 #include "route_planner.h"
 
 bool RoutePlanner::isAhead(int floor, int currentFloor, int direction) const {
-    bool ahead = direction == LiftConstants::noDirection && floor != currentFloor;
-    ahead = ahead || (direction == LiftConstants::upDirection && floor > currentFloor);
-    ahead = ahead || (direction == LiftConstants::downDirection && floor < currentFloor);
-    return ahead;
+    return direction == LiftConstants::noDirection && floor != currentFloor
+           || (direction == LiftConstants::upDirection && floor > currentFloor)
+           || (direction == LiftConstants::downDirection && floor < currentFloor);
 }
 
 bool RoutePlanner::isFurtherInDirection(int candidateFloor, int selectedFloor, int direction) const {
