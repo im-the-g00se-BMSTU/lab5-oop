@@ -6,376 +6,328 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>760</width>
-    <height>579</height>
+    <width>940</width>
+    <height>720</height>
    </rect>
   </property>
+  <property name="minimumSize">
+   <size>
+    <width>760</width>
+    <height>560</height>
+   </size>
+  </property>
   <property name="windowTitle">
-   <string>Elevator simulator</string>
+   <string>Lift simulator</string>
+  </property>
+  <property name="windowIcon">
+   <iconset theme="QIcon::ThemeIcon::WindowNew"/>
   </property>
   <widget class="QWidget" name="centralwidget">
    <property name="styleSheet">
-    <string notr="true">QMainWindow {
-    background-color: #1e1e24;
+    <string notr="true">QWidget#centralwidget {
+    background-color: #0f0f10;
+    font-family: &quot;Nunito&quot;;
 }
 
 QGroupBox {
-    background-color: #2a2a32;
-    border: 2px solid #3f3f46;
-    border-radius: 8px;
-    margin-top: 20px;
-    font-weight: 800;
-    font-size: 16px;
-    color: #e4e4e7;
+    background-color: #111112;
+    border: 1px solid #303033;
+    border-radius: 6px;
+    color: #ffffff;
+    font-size: 18px;
+    font-weight: 700;
+    font-family: &quot;Nunito&quot;;
+    margin-top: 18px;
 }
 
 QGroupBox::title {
     subcontrol-origin: margin;
     subcontrol-position: top left;
-    padding: 0 10px;
-    left: 10px;
+    left: 18px;
+    padding: 0 8px;
+    background-color: #0f0f10;
 }
 
 QLabel {
-    color: #a1a1aa;
-    font-size: 12px;
-    font-weight: 500;
-}
-
-QLabel[frameShape=&quot;1&quot;] { 
-    background-color: #111115;
-    border: 2px solid #3f3f46;
-    border-radius: 6px;
-    color: #06b6d4; 
-    font-weight: bold;
+    color: #ffffff;
     font-size: 14px;
-    letter-spacing: 2px;
+    font-weight: 500;
+    font-family: &quot;Nunito&quot;;
 }
 
-QLabel[text=&quot;ЛИФТ&quot;] {
-    background-color: rgba(6, 182, 212, 0.15);
-    border-color: #06b6d4;
-    color: #06b6d4;
-    font-size: 18px; 
+QLabel[frameShape=&quot;1&quot;] {
+    background-color: #0f0f10;
+    border: 1px solid #1f8fff;
+    border-radius: 0;
+    color: #20c7ff;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+QLabel[activeLift=&quot;true&quot;] {
+    background-color: rgba(0, 104, 255, 0.22);
+    border: 1px solid #0b7cff;
+    color: #20c7ff;
+    font-size: 18px;
     font-weight: 900;
 }
 
 QPushButton {
-    background-color: #3f3f46;
-    color: #f4f4f5;
-    border: 1px solid #52525b;
-    border-radius: 6px;
-    padding: 5px 12px;
-    font-weight: 600;
+    background-color: #2a2a2b;
+    border: 1px solid #3a3a3d;
+    border-radius: 5px;
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: 700;
+    font-family: &quot;Nunito&quot;;
+    min-height: 42px;
+    padding: 6px 18px;
 }
 
 QPushButton:hover {
-    background-color: #52525b;
-    border-color: #71717a;
+    background-color: #333335;
+    border-color: #4a4a4d;
 }
 
 QPushButton:pressed {
-    background-color: #27272a;
-}
-
-QGroupBox#cabinGroupBox QPushButton {
-    background-color: #27272a;
-    border: 2px solid #3f3f46;
-    border-radius: 16px; 
-    color: #fbbf24; 
-    font-size: 14px;
-}
-
-QGroupBox#cabinGroupBox QPushButton:hover {
-    background-color: #3f3f46;
-    border-color: #fbbf24;
-}
-
-QGroupBox#cabinGroupBox QPushButton:pressed {
-    background-color: #fbbf24;
-    color: #1e1e24;
-}
-
-QPushButton#floor1Button, QPushButton#floor2Button, QPushButton#floor3Button, QPushButton#floor4Button, QPushButton#floor5Button {
-    background-color: #d97706;
-    color: #ffffff;
-    border: none;
-}
-
-QPushButton#floor1Button:hover, QPushButton#floor2Button:hover, QPushButton#floor3Button:hover, QPushButton#floor4Button:hover, QPushButton#floor5Button:hover {
-    background-color: #f59e0b;
-}
-
-QPushButton#floor1Button:pressed, QPushButton#floor2Button:pressed, QPushButton#floor3Button:pressed, QPushButton#floor4Button:pressed, QPushButton#floor5Button:pressed {
-    background-color: #b45309;
+    background-color: #0068ff;
+    border-color: #0b7cff;
 }
 
 QLabel#floor1Label, QLabel#floor2Label, QLabel#floor3Label, QLabel#floor4Label, QLabel#floor5Label {
+    color: #ffffff;
     font-size: 16px;
-    font-weight: bold;
-    color: #e4e4e7; 
+    font-weight: 700;
 }
 
 QGroupBox#stateGroupBox QLabel {
+    color: #ffffff;
     font-size: 16px;
     font-weight: 600;
-    color: #f4f4f5;
+}
+
+QLabel#currentFloorValueLabel, QLabel#targetFloorValueLabel, QLabel#controllerStateValueLabel, QLabel#cabinStateValueLabel, QLabel#doorStateValueLabel {
+    background-color: #29292a;
+    border: 1px solid #38383a;
+    border-radius: 4px;
+    color: #ffffff;
+    min-height: 32px;
+    padding: 4px 12px;
 }</string>
    </property>
-   <layout class="QVBoxLayout" name="mainVerticalLayout">
+   <layout class="QHBoxLayout" name="horizontalLayout" stretch="5,2">
+    <property name="spacing">
+     <number>14</number>
+    </property>
+    <property name="leftMargin">
+     <number>24</number>
+    </property>
+    <property name="topMargin">
+     <number>24</number>
+    </property>
+    <property name="rightMargin">
+     <number>24</number>
+    </property>
+    <property name="bottomMargin">
+     <number>24</number>
+    </property>
     <item>
-     <widget class="QGroupBox" name="shaftGroupBox">
-      <property name="title">
-       <string>Шахта лифта</string>
+     <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0">
+      <property name="spacing">
+       <number>8</number>
       </property>
-      <layout class="QGridLayout" name="shaftGridLayout">
-       <item row="0" column="0">
-        <widget class="QLabel" name="floor5Label">
-         <property name="text">
-          <string>5 этаж</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="1">
-        <widget class="QLabel" name="shaft5Label">
-         <property name="minimumSize">
-          <size>
-           <width>120</width>
-           <height>36</height>
-          </size>
-         </property>
-         <property name="frameShape">
-          <enum>QFrame::Shape::Box</enum>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignmentFlag::AlignCenter</set>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="2">
-        <widget class="QPushButton" name="floor5Button">
-         <property name="text">
-          <string>Вызвать</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="0">
-        <widget class="QLabel" name="floor4Label">
-         <property name="font">
-          <font>
-           <pointsize>-1</pointsize>
-           <bold>true</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>4 этаж</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="1">
-        <widget class="QLabel" name="shaft4Label">
-         <property name="minimumSize">
-          <size>
-           <width>120</width>
-           <height>36</height>
-          </size>
-         </property>
-         <property name="frameShape">
-          <enum>QFrame::Shape::Box</enum>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignmentFlag::AlignCenter</set>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="2">
-        <widget class="QPushButton" name="floor4Button">
-         <property name="text">
-          <string>Вызвать</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="0">
-        <widget class="QLabel" name="floor3Label">
-         <property name="text">
-          <string>3 этаж</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="1">
-        <widget class="QLabel" name="shaft3Label">
-         <property name="minimumSize">
-          <size>
-           <width>120</width>
-           <height>36</height>
-          </size>
-         </property>
-         <property name="frameShape">
-          <enum>QFrame::Shape::Box</enum>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignmentFlag::AlignCenter</set>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="2">
-        <widget class="QPushButton" name="floor3Button">
-         <property name="text">
-          <string>Вызвать</string>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="0">
-        <widget class="QLabel" name="floor2Label">
-         <property name="text">
-          <string>2 этаж</string>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="1">
-        <widget class="QLabel" name="shaft2Label">
-         <property name="minimumSize">
-          <size>
-           <width>120</width>
-           <height>36</height>
-          </size>
-         </property>
-         <property name="frameShape">
-          <enum>QFrame::Shape::Box</enum>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignmentFlag::AlignCenter</set>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="2">
-        <widget class="QPushButton" name="floor2Button">
-         <property name="text">
-          <string>Вызвать</string>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="0">
-        <widget class="QLabel" name="floor1Label">
-         <property name="text">
-          <string>1 этаж</string>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="1">
-        <widget class="QLabel" name="shaft1Label">
-         <property name="minimumSize">
-          <size>
-           <width>120</width>
-           <height>36</height>
-          </size>
-         </property>
-         <property name="frameShape">
-          <enum>QFrame::Shape::Box</enum>
-         </property>
-         <property name="text">
-          <string>ЛИФТ</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignmentFlag::AlignCenter</set>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="2">
-        <widget class="QPushButton" name="floor1Button">
-         <property name="text">
-          <string>Вызвать</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-    </item>
-    <item>
-     <layout class="QHBoxLayout" name="bottomHorizontalLayout">
       <item>
-       <widget class="QGroupBox" name="cabinGroupBox">
-        <property name="title">
-         <string>Кабина</string>
+       <widget class="QGroupBox" name="shaftGroupBox">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
         </property>
-        <layout class="QVBoxLayout" name="cabinVerticalLayout">
-         <item>
-          <widget class="QPushButton" name="cabin5Button">
-           <property name="minimumSize">
-            <size>
-             <width>80</width>
-             <height>32</height>
-            </size>
+        <property name="title">
+         <string>Lift shaft</string>
+        </property>
+        <layout class="QGridLayout" name="shaftGridLayout">
+         <property name="leftMargin">
+          <number>28</number>
+         </property>
+         <property name="topMargin">
+          <number>32</number>
+         </property>
+         <property name="rightMargin">
+          <number>28</number>
+         </property>
+         <property name="bottomMargin">
+          <number>28</number>
+         </property>
+         <property name="horizontalSpacing">
+          <number>16</number>
+         </property>
+         <property name="verticalSpacing">
+          <number>12</number>
+         </property>
+         <item row="3" column="2">
+          <widget class="QLabel" name="shaft2Label">
+           <property name="frameShape">
+            <enum>QFrame::Shape::Box</enum>
            </property>
            <property name="text">
-            <string>5</string>
+            <string/>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignmentFlag::AlignCenter</set>
            </property>
           </widget>
          </item>
-         <item>
-          <widget class="QPushButton" name="cabin4Button">
-           <property name="minimumSize">
-            <size>
-             <width>80</width>
-             <height>32</height>
-            </size>
+         <item row="0" column="2">
+          <widget class="QLabel" name="shaft5Label">
+           <property name="frameShape">
+            <enum>QFrame::Shape::Box</enum>
            </property>
            <property name="text">
-            <string>4</string>
+            <string/>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignmentFlag::AlignCenter</set>
            </property>
           </widget>
          </item>
-         <item>
-          <widget class="QPushButton" name="cabin3Button">
-           <property name="minimumSize">
-            <size>
-             <width>80</width>
-             <height>32</height>
-            </size>
-           </property>
+         <item row="3" column="0">
+          <widget class="QLabel" name="floor2Label">
            <property name="text">
-            <string>3</string>
+            <string>Floor 2</string>
            </property>
           </widget>
          </item>
-         <item>
-          <widget class="QPushButton" name="cabin2Button">
-           <property name="minimumSize">
-            <size>
-             <width>80</width>
-             <height>32</height>
-            </size>
+         <item row="2" column="2">
+          <widget class="QLabel" name="shaft3Label">
+           <property name="frameShape">
+            <enum>QFrame::Shape::Box</enum>
            </property>
            <property name="text">
-            <string>2</string>
+            <string/>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignmentFlag::AlignCenter</set>
            </property>
           </widget>
          </item>
-         <item>
-          <widget class="QPushButton" name="cabin1Button">
+         <item row="4" column="2">
+          <widget class="QLabel" name="shaft1Label">
+           <property name="frameShape">
+            <enum>QFrame::Shape::Box</enum>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignmentFlag::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="floor3Label">
+           <property name="text">
+            <string>Floor 3</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0">
+          <widget class="QLabel" name="floor5Label">
+           <property name="text">
+            <string>Floor 5</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="0">
+          <widget class="QLabel" name="floor1Label">
+           <property name="text">
+            <string>Floor 1</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="floor4Label">
+           <property name="text">
+            <string>Floor 4</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="2">
+          <widget class="QLabel" name="shaft4Label">
+           <property name="frameShape">
+            <enum>QFrame::Shape::Box</enum>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignmentFlag::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="1">
+          <widget class="QPushButton" name="floor1Button">
            <property name="minimumSize">
             <size>
-             <width>80</width>
-             <height>32</height>
+             <width>150</width>
+             <height>56</height>
             </size>
            </property>
            <property name="text">
-            <string>1</string>
+            <string>Call</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="1">
+          <widget class="QPushButton" name="floor2Button">
+           <property name="minimumSize">
+            <size>
+             <width>150</width>
+             <height>56</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>Call</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QPushButton" name="floor3Button">
+           <property name="minimumSize">
+            <size>
+             <width>150</width>
+             <height>56</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>Call</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QPushButton" name="floor5Button">
+           <property name="minimumSize">
+            <size>
+             <width>150</width>
+             <height>56</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>Call</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QPushButton" name="floor4Button">
+           <property name="minimumSize">
+            <size>
+             <width>150</width>
+             <height>56</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>Call</string>
            </property>
           </widget>
          </item>
@@ -383,78 +335,58 @@ QGroupBox#stateGroupBox QLabel {
        </widget>
       </item>
       <item>
-       <widget class="QGroupBox" name="stateGroupBox">
+       <widget class="QGroupBox" name="cabinGroupBox">
         <property name="title">
-         <string>Состояния</string>
+         <string>Cabin panel</string>
         </property>
-        <layout class="QFormLayout" name="stateFormLayout">
-         <item row="0" column="0">
-          <widget class="QLabel" name="currentFloorLabel">
+        <layout class="QGridLayout" name="cabinGridLayout">
+         <property name="leftMargin">
+          <number>20</number>
+         </property>
+         <property name="topMargin">
+          <number>24</number>
+         </property>
+         <property name="rightMargin">
+          <number>20</number>
+         </property>
+         <property name="bottomMargin">
+          <number>20</number>
+         </property>
+         <property name="spacing">
+          <number>10</number>
+         </property>
+         <item row="0" column="3">
+          <widget class="QPushButton" name="cabin4Button">
            <property name="text">
-            <string>Текущий этаж:</string>
+            <string>4</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="2">
+          <widget class="QPushButton" name="cabin3Button">
+           <property name="text">
+            <string>3</string>
            </property>
           </widget>
          </item>
          <item row="0" column="1">
-          <widget class="QLabel" name="currentFloorValueLabel">
+          <widget class="QPushButton" name="cabin2Button">
+           <property name="text">
+            <string>2</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0">
+          <widget class="QPushButton" name="cabin1Button">
            <property name="text">
             <string>1</string>
            </property>
           </widget>
          </item>
-         <item row="1" column="0">
-          <widget class="QLabel" name="targetFloorLabel">
+         <item row="0" column="4">
+          <widget class="QPushButton" name="cabin5Button">
            <property name="text">
-            <string>Цель:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="1">
-          <widget class="QLabel" name="targetFloorValueLabel">
-           <property name="text">
-            <string>1</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="0">
-          <widget class="QLabel" name="controllerStateLabel">
-           <property name="text">
-            <string>Контроллер:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="1">
-          <widget class="QLabel" name="controllerStateValueLabel">
-           <property name="text">
-            <string>FREE</string>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="0">
-          <widget class="QLabel" name="cabinStateLabel">
-           <property name="text">
-            <string>Кабина:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="1">
-          <widget class="QLabel" name="cabinStateValueLabel">
-           <property name="text">
-            <string>STOPPED</string>
-           </property>
-          </widget>
-         </item>
-         <item row="4" column="0">
-          <widget class="QLabel" name="doorStateLabel">
-           <property name="text">
-            <string>Двери:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="4" column="1">
-          <widget class="QLabel" name="doorStateValueLabel">
-           <property name="text">
-            <string>CLOSED</string>
+            <string>5</string>
            </property>
           </widget>
          </item>
@@ -462,6 +394,171 @@ QGroupBox#stateGroupBox QLabel {
        </widget>
       </item>
      </layout>
+    </item>
+    <item>
+     <widget class="QGroupBox" name="stateGroupBox">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="title">
+       <string>Status</string>
+      </property>
+      <layout class="QVBoxLayout" name="stateVerticalLayout">
+       <property name="spacing">
+        <number>14</number>
+       </property>
+       <property name="leftMargin">
+        <number>20</number>
+       </property>
+       <property name="topMargin">
+        <number>24</number>
+       </property>
+       <property name="rightMargin">
+        <number>20</number>
+       </property>
+       <property name="bottomMargin">
+        <number>20</number>
+       </property>
+       <item>
+        <layout class="QVBoxLayout" name="currentFloorStatusLayout">
+         <property name="spacing">
+          <number>4</number>
+         </property>
+         <item>
+          <widget class="QLabel" name="currentFloorLabel">
+           <property name="text">
+            <string>Current floor</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="currentFloorValueLabel">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string>1</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QVBoxLayout" name="targetFloorStatusLayout">
+         <property name="spacing">
+          <number>4</number>
+         </property>
+         <item>
+          <widget class="QLabel" name="targetFloorLabel">
+           <property name="text">
+            <string>Target floor</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="targetFloorValueLabel">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string>1</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QVBoxLayout" name="dispatcherStatusLayout">
+         <property name="spacing">
+          <number>4</number>
+         </property>
+         <item>
+          <widget class="QLabel" name="controllerStateLabel">
+           <property name="text">
+            <string>Dispatcher</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="controllerStateValueLabel">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string>IDLE</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QVBoxLayout" name="cabinStatusLayout">
+         <property name="spacing">
+          <number>4</number>
+         </property>
+         <item>
+          <widget class="QLabel" name="cabinStateLabel">
+           <property name="text">
+            <string>Cabin</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="cabinStateValueLabel">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string>PARKED</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QVBoxLayout" name="doorStatusLayout">
+         <property name="spacing">
+          <number>4</number>
+         </property>
+         <item>
+          <widget class="QLabel" name="doorStateLabel">
+           <property name="text">
+            <string>Doors</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="doorStateValueLabel">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string>CLOSED</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
     </item>
    </layout>
   </widget>
