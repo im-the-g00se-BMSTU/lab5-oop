@@ -4,7 +4,6 @@
 #include "lift_request.h"
 #include "lift_constants.h"
 
-#include <cmath>
 #include <vector>
 
 class RoutePlanner {
@@ -15,6 +14,7 @@ private:
     int chooseNearest(int currentFloor, const std::vector<LiftRequest>& requests) const;
 
 public:
+    bool canServeOnRoute(int currentFloor, int direction, int requestFloor) const;
     int nextDestination(int currentFloor, int direction, const std::vector<LiftRequest>& requests) const;
     bool shouldServeFloor(int floor, const std::vector<LiftRequest>& requests) const;
 };

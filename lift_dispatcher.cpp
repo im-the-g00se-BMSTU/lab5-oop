@@ -5,7 +5,7 @@ LiftDispatcher::LiftDispatcher(QObject* parent)
     car(new LiftCar(this)),
     doors(new DoorMechanism(this)),
     state(DispatcherState::Idle),
-    destinationFloor(LiftConstants::firstFloor) {
+    destinationFloor(1) {
     setupStateNames();
     connectParts();
 }
@@ -25,14 +25,10 @@ QString LiftDispatcher::stateText() const {
     return text;
 }
 
-QString LiftDispatcher::originText(LiftRequestOrigin origin) const {
-    return (origin == LiftRequestOrigin::Cabin) ? "cabin" : "hall";
-}
-
 void LiftDispatcher::changeState(DispatcherState nextState) {
     state = nextState;
     emit dispatcherStateChanged(stateText());
-    emit eventReported("Dispatcher state: " + stateText());
+    emit eventReported("Состояние диспетчера: " + stateText());
 }
 
 void LiftDispatcher::connectParts() {
@@ -44,14 +40,14 @@ void LiftDispatcher::connectParts() {
     connect(doors, &DoorMechanism::stateChanged, this, &LiftDispatcher::doorStateChanged);
 }
 
-void LiftDispatcher::addRequest(int floor, LiftRequestOrigin origin) {
+void LiftDispatcher::addRequest(int floor) {
     if (!LiftConstants::isFloorValid(floor)) {
-        emit eventReported("Invalid floor request: " + QString::number(floor));
+        emit eventReported("Некорректный этаж в заявке: " + QString::number(floor));
         return;
     }
 
-    storage.add(floor, origin);
-    emit eventReported("Lift requested from " + originText(origin) + " for floor " + QString::number(floor));
+    storage.add(floor);
+    emit eventReported("Получен вызов на этаж " + QString::number(floor));
     processNextRequest();
 }
 
@@ -69,12 +65,12 @@ void LiftDispatcher::selectDestination() {
     changeState(DispatcherState::SelectingTarget);
     destinationFloor = planner.nextDestination(car->currentFloor(), car->direction(), storage.requests());
     emit targetFloorChanged(destinationFloor);
-    emit eventReported("New target floor: " + QString::number(destinationFloor));
+    emit eventReported("Новый целевой этаж: " + QString::number(destinationFloor));
 }
 
 void LiftDispatcher::startTrip() {
     changeState(DispatcherState::Moving);
-    emit eventReported("Movement started");
+    emit eventReported("Движение началось");
     car->prepareForMovement(directionToDestination());
     car->beginMovement();
 }
@@ -82,7 +78,14 @@ void LiftDispatcher::startTrip() {
 void LiftDispatcher::serveCurrentFloor() {
     changeState(DispatcherState::ServingFloor);
     car->lockCabin();
+    reportStartedService();
     doors->openDoors();
+}
+
+void LiftDispatcher::reportStartedService() {
+    int floor = car->currentFloor();
+    if (storage.containsFloor(floor))
+        emit requestServed(floor);
 }
 
 int LiftDispatcher::directionToDestination() const {
@@ -96,32 +99,43 @@ int LiftDispatcher::directionToDestination() const {
 
 void LiftDispatcher::handleFloorReached(int floor) {
     emit currentFloorChanged(floor);
-    emit eventReported("Arrived at floor " + QString::number(floor));
+    emit eventReported("Лифт прибыл на этаж " + QString::number(floor));
     if (planner.shouldServeFloor(floor, storage.requests()))
         car->stopAtCurrentFloor();
 }
 
 void LiftDispatcher::handleMovementStopped(int floor) {
-    emit eventReported("Cabin stopped at floor " + QString::number(floor));
+    emit eventReported("Кабина остановилась на этаже " + QString::number(floor));
     serveCurrentFloor();
 }
 
 void LiftDispatcher::handleDoorsOpened() {
-    emit eventReported("Doors opened");
+    emit eventReported("Двери открылись");
 }
 
 void LiftDispatcher::handleDoorsClosed() {
-    emit eventReported("Doors closed");
+    emit eventReported("Двери закрылись");
     storage.eraseFloor(car->currentFloor());
     car->releaseCabin();
     changeState(DispatcherState::Idle);
     processNextRequest();
 }
 
-void LiftDispatcher::requestFromHall(int floor) {
-    addRequest(floor, LiftRequestOrigin::Hall);
+int LiftDispatcher::currentFloor() const {
+    return car->currentFloor();
 }
 
-void LiftDispatcher::requestFromCabin(int floor) {
-    addRequest(floor, LiftRequestOrigin::Cabin);
+int LiftDispatcher::direction() const {
+    return car->direction();
+}
+
+bool LiftDispatcher::isFree() const {
+    return state == DispatcherState::Idle && storage.isEmpty();
+}
+
+bool LiftDispatcher::canServeHallRequest(int floor) const {
+    bool canServe = isFree();
+    if (!canServe)
+        canServe = planner.canServeOnRoute(car->currentFloor(), car->direction(), floor);
+    return canServe;
 }

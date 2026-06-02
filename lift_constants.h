@@ -1,10 +1,17 @@
 #ifndef LIFT_CONSTANTS_H
 #define LIFT_CONSTANTS_H
 
+#include <cstdlib>
+#include <type_traits>
+
 namespace LiftConstants {
-constexpr int firstFloor = 1;
-constexpr int lastFloor = 5;
 constexpr int floorCount = 5;
+
+constexpr int studentLiftCount = 12;
+constexpr int teacherLiftCount = 0;
+constexpr int maxLiftCount = 12;
+
+constexpr int invalidLiftIndex = -1;
 
 constexpr int noDirection = 0;
 constexpr int upDirection = 1;
@@ -16,8 +23,21 @@ constexpr int doorCloseIntervalMs = 1000;
 constexpr int floorWaitIntervalMs = 1500;
 
 inline bool isFloorValid(int floor) {
-    return floor >= firstFloor && floor <= lastFloor;
+    return floor >= 1 && floor <= floorCount;
 }
+
+inline int distanceBetweenFloors(int firstFloor, int secondFloor) {
+    return std::abs(firstFloor - secondFloor);
 }
+
+static_assert(studentLiftCount + teacherLiftCount <= maxLiftCount,
+              "Total lift count exceeds maximum allowed");
+
+static_assert(!(studentLiftCount + teacherLiftCount == maxLiftCount &&
+                (studentLiftCount % 2 != 0 || teacherLiftCount % 2 != 0)),
+              "When using maxLiftCount lifts, both studentLiftCount and teacherLiftCount must be even numbers");
+}
+
+
 
 #endif // LIFT_CONSTANTS_H

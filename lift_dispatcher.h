@@ -31,14 +31,13 @@ private:
 
     void setupStateNames();
     QString stateText() const;
-    QString originText(LiftRequestOrigin origin) const;
     void changeState(DispatcherState nextState);
     void connectParts();
-    void addRequest(int floor, LiftRequestOrigin origin);
     void processNextRequest();
     void selectDestination();
     void startTrip();
     void serveCurrentFloor();
+    void reportStartedService();
     int directionToDestination() const;
 
 private slots:
@@ -49,10 +48,13 @@ private slots:
 
 public:
     explicit LiftDispatcher(QObject* parent = nullptr);
+    int currentFloor() const;
+    int direction() const;
+    bool isFree() const;
+    bool canServeHallRequest(int floor) const;
 
 public slots:
-    void requestFromHall(int floor);
-    void requestFromCabin(int floor);
+    void addRequest(int floor);
 
 signals:
     void currentFloorChanged(int floor);
@@ -61,6 +63,7 @@ signals:
     void carStateChanged(QString stateName);
     void doorStateChanged(QString stateName);
     void eventReported(QString message);
+    void requestServed(int floor);
 };
 
 #endif // LIFT_DISPATCHER_H

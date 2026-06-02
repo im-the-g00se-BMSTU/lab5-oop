@@ -21,9 +21,9 @@ public:
         return found;
     }
 
-    void add(int floor, LiftRequestOrigin origin) {
+    void add(int floor) {
         if (!containsFloor(floor))
-            pendingRequests.emplace_back(floor, origin);
+            pendingRequests.emplace_back(floor);
     }
 
     void eraseFloor(int floor) {

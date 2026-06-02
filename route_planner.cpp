@@ -23,13 +23,17 @@ int RoutePlanner::chooseNearest(int currentFloor, const std::vector<LiftRequest>
     int destination = currentFloor;
     int bestDistance = LiftConstants::floorCount;
     for (const LiftRequest& request : requests) {
-        int distance = std::abs(request.floor() - currentFloor);
+        int distance = LiftConstants::distanceBetweenFloors(request.floor(), currentFloor);
         if (distance < bestDistance) {
             bestDistance = distance;
             destination = request.floor();
         }
     }
     return destination;
+}
+
+bool RoutePlanner::canServeOnRoute(int currentFloor, int direction, int requestFloor) const {
+    return isAhead(requestFloor, currentFloor, direction);
 }
 
 int RoutePlanner::nextDestination(int currentFloor, int direction, const std::vector<LiftRequest>& requests) const {

@@ -24,6 +24,12 @@ set(PROJECT_SOURCES
     lift_constants.h
     lift_dispatcher.cpp
     lift_dispatcher.h
+    lift_group_facade.cpp
+    lift_group_facade.h
+    lift_panel.cpp
+    lift_panel.h
+    lift_manager.cpp
+    lift_manager.h
     lift_request.h
     request_storage.h
     route_planner.cpp

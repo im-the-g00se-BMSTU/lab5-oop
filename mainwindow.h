@@ -1,14 +1,15 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include "lift_dispatcher.h"
+#include "lift_constants.h"
+#include "lift_group_facade.h"
 #include "simulation_logger.h"
 
-#include <QStyle>
-#include <QLabel>
 #include <QMainWindow>
-#include <QPushButton>
 #include <vector>
+
+class LiftGroupFacade;
+class SimulationLogger;
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -21,19 +22,10 @@ class MainWindow : public QMainWindow {
 
 private:
     Ui::MainWindow* ui;
-    LiftDispatcher* dispatcher;
     SimulationLogger* logger;
+    std::vector<LiftGroupFacade*> liftGroups;
 
-    std::vector<QLabel*> shaftLabels;
-    std::vector<QPushButton*> floorButtons;
-    std::vector<QPushButton*> cabinButtons;
-
-    void setupInterface();
-    void setupConnections();
-    void connectHallButtons();
-    void connectCabinButtons();
-    void connectStateLabels();
-    void drawCarAtFloor(int floor);
+    void addLiftGroup(LiftGroupFacade* group);
 
 public:
     explicit MainWindow(QWidget* parent = nullptr);

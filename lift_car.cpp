@@ -2,7 +2,7 @@
 
 LiftCar::LiftCar(QObject* parent)
     : QObject(parent),
-    activeFloor(LiftConstants::firstFloor),
+    activeFloor(1),
     currentDirection(LiftConstants::noDirection),
     plannedDirection(LiftConstants::noDirection),
     state(CarState::Parked) {
