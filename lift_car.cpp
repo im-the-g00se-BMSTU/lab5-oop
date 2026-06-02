@@ -5,9 +5,7 @@ LiftCar::LiftCar(QObject* parent)
     activeFloor(LiftConstants::firstFloor),
     currentDirection(LiftConstants::noDirection),
     plannedDirection(LiftConstants::noDirection),
-    movementPaused(false),
-    state(CarState::Parked),
-    stateBeforePause(CarState::Parked) {
+    state(CarState::Parked) {
 
     setupStateNames();
     travelTimer.setSingleShot(false);
@@ -20,7 +18,6 @@ void LiftCar::setupStateNames() {
     stateNames[CarState::Moving] = "MOVING";
     stateNames[CarState::Locked] = "LOCKED";
     stateNames[CarState::Ready] = "READY";
-    stateNames[CarState::Stuck] = "STUCK";
 }
 
 QString LiftCar::stateText() const {
@@ -59,8 +56,7 @@ void LiftCar::beginMovement() {
     if (state == CarState::Preparing) {
         setDirection(plannedDirection);
         changeState(CarState::Moving);
-        if (!movementPaused)
-            travelTimer.start(LiftConstants::travelIntervalMs);
+        travelTimer.start(LiftConstants::travelIntervalMs);
     }
 }
 
@@ -81,22 +77,6 @@ void LiftCar::lockCabin() {
 void LiftCar::releaseCabin() {
     if (state == CarState::Locked)
         changeState(CarState::Ready);
-}
-
-void LiftCar::setMovementPaused(bool paused) {
-    if (movementPaused == paused)
-        return;
-
-    movementPaused = paused;
-    if (movementPaused) {
-        stateBeforePause = state;
-        travelTimer.stop();
-        changeState(CarState::Stuck);
-    } else {
-        changeState(stateBeforePause);
-        if (state == CarState::Moving && !travelTimer.isActive())
-            travelTimer.start(LiftConstants::travelIntervalMs);
-    }
 }
 
 void LiftCar::completeFloorStep() {

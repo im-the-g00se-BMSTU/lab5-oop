@@ -33,9 +33,6 @@ private:
     void connectHallButtons();
     void connectCabinButtons();
     void connectStateLabels();
-    void connectSimulationSwitch();
-    bool isBmstuSimulationEnabled() const;
-    void reportStuckLift();
     void drawCarAtFloor(int floor);
 
 public:

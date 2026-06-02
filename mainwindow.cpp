@@ -1,8 +1,6 @@
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
 
-#include <QMessageBox>
-
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent),
     ui(new Ui::MainWindow),
@@ -21,14 +19,13 @@ void MainWindow::setupInterface() {
     shaftLabels = {ui->shaft1Label, ui->shaft2Label, ui->shaft3Label, ui->shaft4Label, ui->shaft5Label};
     floorButtons = {ui->floor1Button, ui->floor2Button, ui->floor3Button, ui->floor4Button, ui->floor5Button};
     cabinButtons = {ui->cabin1Button, ui->cabin2Button, ui->cabin3Button, ui->cabin4Button, ui->cabin5Button};
-    drawCarAtFloor(1);
+    drawCarAtFloor(LiftConstants::firstFloor);
 }
 
 void MainWindow::setupConnections() {
     connectHallButtons();
     connectCabinButtons();
     connectStateLabels();
-    connectSimulationSwitch();
     connect(dispatcher, &LiftDispatcher::eventReported, logger, &SimulationLogger::write);
 }
 
@@ -36,10 +33,7 @@ void MainWindow::connectHallButtons() {
     int floor = 1;
     for (QPushButton* button : floorButtons) {
         connect(button, &QPushButton::clicked, this, [this, floor]() {
-            if (isBmstuSimulationEnabled())
-                reportStuckLift();
-            else
-                dispatcher->requestFromHall(floor);
+            dispatcher->requestFromHall(floor);
         });
         ++floor;
     }
@@ -49,10 +43,7 @@ void MainWindow::connectCabinButtons() {
     int floor = 1;
     for (QPushButton* button : cabinButtons) {
         connect(button, &QPushButton::clicked, this, [this, floor]() {
-            if (isBmstuSimulationEnabled())
-                reportStuckLift();
-            else
-                dispatcher->requestFromCabin(floor);
+            dispatcher->requestFromCabin(floor);
         });
         ++floor;
     }
@@ -67,18 +58,6 @@ void MainWindow::connectStateLabels() {
     connect(dispatcher, &LiftDispatcher::dispatcherStateChanged, ui->controllerStateValueLabel, &QLabel::setText);
     connect(dispatcher, &LiftDispatcher::carStateChanged, ui->cabinStateValueLabel, &QLabel::setText);
     connect(dispatcher, &LiftDispatcher::doorStateChanged, ui->doorStateValueLabel, &QLabel::setText);
-}
-
-void MainWindow::connectSimulationSwitch() {
-    connect(ui->bmstuCheckBox, &QCheckBox::toggled, dispatcher, &LiftDispatcher::setMovementPaused);
-}
-
-bool MainWindow::isBmstuSimulationEnabled() const {
-    return ui->bmstuCheckBox->isChecked();
-}
-
-void MainWindow::reportStuckLift() {
-    QMessageBox::information(this, "Lift is stuck", "Lift is stuck, better use stairs");
 }
 
 void MainWindow::drawCarAtFloor(int floor) {

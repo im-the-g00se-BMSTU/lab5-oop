@@ -125,7 +125,3 @@ void LiftDispatcher::requestFromHall(int floor) {
 void LiftDispatcher::requestFromCabin(int floor) {
     addRequest(floor, LiftRequestOrigin::Cabin);
 }
-
-void LiftDispatcher::setMovementPaused(bool paused) {
-    car->setMovementPaused(paused);
-}

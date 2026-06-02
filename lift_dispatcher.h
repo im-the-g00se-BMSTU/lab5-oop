@@ -53,7 +53,6 @@ public:
 public slots:
     void requestFromHall(int floor);
     void requestFromCabin(int floor);
-    void setMovementPaused(bool paused);
 
 signals:
     void currentFloorChanged(int floor);

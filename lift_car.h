@@ -16,17 +16,14 @@ private:
         Preparing,
         Moving,
         Locked,
-        Ready,
-        Stuck
+        Ready
     };
 
     QTimer travelTimer;
     int activeFloor;
     int currentDirection;
     int plannedDirection;
-    bool movementPaused;
     CarState state;
-    CarState stateBeforePause;
     std::map<CarState, QString> stateNames;
 
     void setupStateNames();
@@ -48,7 +45,6 @@ public:
     void stopAtCurrentFloor();
     void lockCabin();
     void releaseCabin();
-    void setMovementPaused(bool paused);
 
 signals:
     void floorReached(int floor);
