@@ -1,13 +1,13 @@
-#ifndef DOOR_MECHANISM_H
-#define DOOR_MECHANISM_H
+#ifndef DOOR_H
+#define DOOR_H
 
-#include "lift_constants.h"
+#include "constants.h"
 
 #include <QObject>
 #include <QTimer>
 #include <map>
 
-class DoorMechanism : public QObject {
+class Door : public QObject {
     Q_OBJECT
 
 private:
@@ -38,7 +38,7 @@ private slots:
     void finishClosing();
 
 public:
-    explicit DoorMechanism(QObject* parent = nullptr);
+    explicit Door(QObject* parent = nullptr);
 
     void openDoors();
     void closeDoors();
@@ -49,4 +49,4 @@ signals:
     void stateChanged(QString stateName);
 };
 
-#endif // DOOR_MECHANISM_H
+#endif // DOOR_H

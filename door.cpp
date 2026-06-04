@@ -1,6 +1,6 @@
-#include "door_mechanism.h"
+#include "door.h"
 
-DoorMechanism::DoorMechanism(QObject* parent)
+Door::Door(QObject* parent)
     : QObject(parent),
     state(DoorState::Closed) {
     setupStateNames();
@@ -8,19 +8,19 @@ DoorMechanism::DoorMechanism(QObject* parent)
     stayingOpenTimer.setSingleShot(true);
     closingTimer.setSingleShot(true);
 
-    connect(&openingTimer, &QTimer::timeout, this, &DoorMechanism::finishOpening);
-    connect(&stayingOpenTimer, &QTimer::timeout, this, &DoorMechanism::finishWaiting);
-    connect(&closingTimer, &QTimer::timeout, this, &DoorMechanism::finishClosing);
+    connect(&openingTimer, &QTimer::timeout, this, &Door::finishOpening);
+    connect(&stayingOpenTimer, &QTimer::timeout, this, &Door::finishWaiting);
+    connect(&closingTimer, &QTimer::timeout, this, &Door::finishClosing);
 }
 
-void DoorMechanism::setupStateNames() {
+void Door::setupStateNames() {
     stateNames[DoorState::Opening] = "OPENING";
     stateNames[DoorState::Open] = "OPEN";
     stateNames[DoorState::Closing] = "CLOSING";
     stateNames[DoorState::Closed] = "CLOSED";
 }
 
-QString DoorMechanism::stateText() const {
+QString Door::stateText() const {
     QString text;
     auto stateName = stateNames.find(state);
     if (stateName != stateNames.end())
@@ -28,55 +28,55 @@ QString DoorMechanism::stateText() const {
     return text;
 }
 
-void DoorMechanism::changeState(DoorState nextState) {
+void Door::changeState(DoorState nextState) {
     state = nextState;
     emit stateChanged(stateText());
 }
 
-void DoorMechanism::stopAllTimers() {
+void Door::stopAllTimers() {
     openingTimer.stop();
     stayingOpenTimer.stop();
     closingTimer.stop();
 }
 
-void DoorMechanism::beginOpening() {
+void Door::beginOpening() {
     stopAllTimers();
     changeState(DoorState::Opening);
-    openingTimer.start(LiftConstants::doorOpenIntervalMs);
+    openingTimer.start(Constants::doorOpenIntervalMs);
 }
 
-void DoorMechanism::holdOpen() {
+void Door::holdOpen() {
     stopAllTimers();
     changeState(DoorState::Open);
     emit opened();
-    stayingOpenTimer.start(LiftConstants::floorWaitIntervalMs);
+    stayingOpenTimer.start(Constants::floorWaitIntervalMs);
 }
 
-void DoorMechanism::beginClosing() {
+void Door::beginClosing() {
     stopAllTimers();
     changeState(DoorState::Closing);
-    closingTimer.start(LiftConstants::doorCloseIntervalMs);
+    closingTimer.start(Constants::doorCloseIntervalMs);
 }
 
-void DoorMechanism::openDoors() {
+void Door::openDoors() {
     if (state == DoorState::Closed || state == DoorState::Closing)
         beginOpening();
 }
 
-void DoorMechanism::closeDoors() {
+void Door::closeDoors() {
     if (state == DoorState::Open)
         beginClosing();
 }
 
-void DoorMechanism::finishOpening() {
+void Door::finishOpening() {
     holdOpen();
 }
 
-void DoorMechanism::finishWaiting() {
+void Door::finishWaiting() {
     closeDoors();
 }
 
-void DoorMechanism::finishClosing() {
+void Door::finishClosing() {
     changeState(DoorState::Closed);
     emit closed();
 }

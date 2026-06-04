@@ -1,13 +1,13 @@
-#ifndef LIFT_CAR_H
-#define LIFT_CAR_H
+#ifndef CAR_H
+#define CAR_H
 
-#include "lift_constants.h"
+#include "constants.h"
 
 #include <QObject>
 #include <QTimer>
 #include <map>
 
-class LiftCar : public QObject {
+class Car : public QObject {
     Q_OBJECT
 
 private:
@@ -35,7 +35,7 @@ private slots:
     void completeFloorStep();
 
 public:
-    explicit LiftCar(QObject* parent = nullptr);
+    explicit Car(QObject* parent = nullptr);
 
     int currentFloor() const;
     int direction() const;
@@ -52,4 +52,4 @@ signals:
     void stateChanged(QString stateName);
 };
 
-#endif // LIFT_CAR_H
+#endif // CAR_H

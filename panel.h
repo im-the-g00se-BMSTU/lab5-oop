@@ -1,23 +1,26 @@
-#ifndef LIFT_PANEL_H
-#define LIFT_PANEL_H
+#ifndef PANEL_H
+#define PANEL_H
 
-#include "lift_constants.h"
+#include "constants.h"
 
+#include <QByteArray>
 #include <QGridLayout>
 #include <QHBoxLayout>
 #include <QLabel>
+#include <QMovie>
 #include <QPushButton>
 #include <QSizePolicy>
 #include <QStyle>
 #include <QGroupBox>
 #include <QVBoxLayout>
+#include <map>
 #include <vector>
 
 class QLabel;
 class QGridLayout;
 class QHBoxLayout;
 
-struct LiftStatusLabels {
+struct StatusLabels {
     QLabel* currentFloor;
     QLabel* targetFloor;
     QLabel* dispatcherState;
@@ -25,13 +28,15 @@ struct LiftStatusLabels {
     QLabel* doorState;
 };
 
-class LiftPanel : public QGroupBox {
+class UiPanel : public QGroupBox {
     Q_OBJECT
 
 private:
     std::vector<QLabel*> shaftLabels;
     std::vector<QPushButton*> cabinButtons;
-    LiftStatusLabels statusLabels;
+    StatusLabels statusLabels;
+    std::map<int, QMovie*> animationMovies;
+    QString dispatcherStateName;
 
     void setupLayout();
     void addShaftRows(QGridLayout* layout);
@@ -42,7 +47,7 @@ private:
     void setCabinButtonActive(int floor, bool isActive);
 
 public:
-    explicit LiftPanel(const QString& title, QWidget* parent = nullptr);
+    explicit UiPanel(const QString& title, QWidget* parent = nullptr);
 
 public slots:
     void setCurrentFloor(int floor);
@@ -51,9 +56,11 @@ public slots:
     void setCarState(const QString& state);
     void setDoorState(const QString& state);
     void clearCabinRequest(int floor);
+    void startAnimation(const QString& resourcePath, int floor);
+    void stopAnimation(int floor);
 
 signals:
     void cabinFloorRequested(int floor);
 };
 
-#endif // LIFT_PANEL_H
+#endif // PANEL_H

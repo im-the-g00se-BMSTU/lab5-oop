@@ -17,30 +17,32 @@ set(PROJECT_SOURCES
     mainwindow.cpp
     mainwindow.h
     mainwindow.ui
-    door_mechanism.cpp
-    door_mechanism.h
-    lift_car.cpp
-    lift_car.h
-    lift_constants.h
-    lift_dispatcher.cpp
-    lift_dispatcher.h
-    lift_group_facade.cpp
-    lift_group_facade.h
-    lift_panel.cpp
-    lift_panel.h
-    lift_manager.cpp
-    lift_manager.h
-    lift_request.h
+    door.cpp
+    door.h
+    car.cpp
+    car.h
+    constants.h
+    dispatcher.cpp
+    dispatcher.h
+    facade.cpp
+    facade.h
+    panel.cpp
+    panel.h
+    manager.cpp
+    manager.h
+    manager_strategy.cpp
+    manager_strategy.h
     request_storage.h
     route_planner.cpp
     route_planner.h
-    simulation_logger.h
+    logger.h
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(lab5
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
+        res.qrc
     )
 else()
     if(ANDROID)

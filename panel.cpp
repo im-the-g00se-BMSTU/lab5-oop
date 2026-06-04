@@ -1,4 +1,4 @@
-#include "lift_panel.h"
+#include "panel.h"
 
 namespace {
 QLabel* createShaftLabel() {
@@ -43,14 +43,15 @@ void setButtonActive(QPushButton* button, bool isActive) {
 }
 }
 
-LiftPanel::LiftPanel(const QString& title, QWidget* parent)
-    : QGroupBox(title, parent) {
+UiPanel::UiPanel(const QString& title, QWidget* parent)
+    : QGroupBox(title, parent),
+    dispatcherStateName("IDLE") {
     setProperty("liftPanel", true);
     setupLayout();
     drawCarAtFloor(1);
 }
 
-void LiftPanel::setupLayout() {
+void UiPanel::setupLayout() {
     QVBoxLayout* mainLayout = new QVBoxLayout(this);
     QGridLayout* shaftLayout = new QGridLayout;
     QHBoxLayout* cabinLayout = new QHBoxLayout;
@@ -67,18 +68,18 @@ void LiftPanel::setupLayout() {
     mainLayout->setAlignment(cabinLayout, Qt::AlignHCenter);
 }
 
-void LiftPanel::addShaftRows(QGridLayout* layout) {
-    for (int floor = LiftConstants::floorCount; floor >= 1; --floor) {
+void UiPanel::addShaftRows(QGridLayout* layout) {
+    for (int floor = Constants::floorCount; floor >= 1; --floor) {
         QLabel* shaftLabel = createShaftLabel();
-        int row = LiftConstants::floorCount - floor;
+        int row = Constants::floorCount - floor;
         layout->addWidget(createFloorLabel(QString::number(floor)), row, 0);
-        layout->addWidget(shaftLabel, row, 1, 1, LiftConstants::floorCount, Qt::AlignCenter);
+        layout->addWidget(shaftLabel, row, 1, 1, Constants::floorCount, Qt::AlignCenter);
         shaftLabels.insert(shaftLabels.begin(), shaftLabel);
     }
 }
 
-void LiftPanel::addCabinButtons(QHBoxLayout* layout) {
-    for (int floor = 1; floor <= LiftConstants::floorCount; ++floor) {
+void UiPanel::addCabinButtons(QHBoxLayout* layout) {
+    for (int floor = 1; floor <= Constants::floorCount; ++floor) {
         QPushButton* button = createCabinButton(floor);
         layout->addWidget(button);
         cabinButtons.push_back(button);
@@ -89,7 +90,7 @@ void LiftPanel::addCabinButtons(QHBoxLayout* layout) {
     }
 }
 
-QPushButton* LiftPanel::cabinButtonAt(int floor) const {
+QPushButton* UiPanel::cabinButtonAt(int floor) const {
     QPushButton* button = nullptr;
     int index = floor - 1;
     if (index >= 0 && index < static_cast<int>(cabinButtons.size()))
@@ -97,13 +98,13 @@ QPushButton* LiftPanel::cabinButtonAt(int floor) const {
     return button;
 }
 
-void LiftPanel::setCabinButtonActive(int floor, bool isActive) {
+void UiPanel::setCabinButtonActive(int floor, bool isActive) {
     QPushButton* button = cabinButtonAt(floor);
     if (button)
         setButtonActive(button, isActive);
 }
 
-void LiftPanel::addStatusRows(QGridLayout* layout) {
+void UiPanel::addStatusRows(QGridLayout* layout) {
     statusLabels = {
         createStatusValueLabel(QString::number(1)),
         createStatusValueLabel(QString::number(1)),
@@ -126,43 +127,81 @@ void LiftPanel::addStatusRows(QGridLayout* layout) {
     layout->setColumnStretch(1, 1);
 }
 
-void LiftPanel::drawCarAtFloor(int floor) {
+void UiPanel::drawCarAtFloor(int floor) {
     int index = floor - 1;
     for (QLabel* label : shaftLabels) {
+        label->setMovie(nullptr);
         label->setText("");
         label->setProperty("activeLift", false);
+        label->setProperty("liftState", "");
         label->style()->unpolish(label);
         label->style()->polish(label);
     }
     if (index >= 0 && index < static_cast<int>(shaftLabels.size())) {
-        shaftLabels[index]->setText("L");
+        shaftLabels[index]->setText("Лифт");
         shaftLabels[index]->setProperty("activeLift", true);
+        shaftLabels[index]->setProperty("liftState", dispatcherStateName);
         shaftLabels[index]->style()->unpolish(shaftLabels[index]);
         shaftLabels[index]->style()->polish(shaftLabels[index]);
     }
+    for (const auto& animation : animationMovies) {
+        int animationIndex = animation.first - 1;
+        QMovie* movie = animation.second;
+        if (movie && animationIndex >= 0 && animationIndex < static_cast<int>(shaftLabels.size())) {
+            int sideLength = shaftLabels[animationIndex]->height();
+            movie->setScaledSize(QSize(sideLength, sideLength));
+            shaftLabels[animationIndex]->setText("");
+            shaftLabels[animationIndex]->setMovie(movie);
+            shaftLabels[animationIndex]->setProperty("activeLift", animation.first == floor);
+            shaftLabels[animationIndex]->style()->unpolish(shaftLabels[animationIndex]);
+            shaftLabels[animationIndex]->style()->polish(shaftLabels[animationIndex]);
+        }
+    }
 }
 
-void LiftPanel::setCurrentFloor(int floor) {
+void UiPanel::setCurrentFloor(int floor) {
     statusLabels.currentFloor->setText(QString::number(floor));
     drawCarAtFloor(floor);
 }
 
-void LiftPanel::setTargetFloor(int floor) {
+void UiPanel::setTargetFloor(int floor) {
     statusLabels.targetFloor->setText(QString::number(floor));
 }
 
-void LiftPanel::setDispatcherState(const QString& state) {
+void UiPanel::setDispatcherState(const QString& state) {
+    dispatcherStateName = state;
     statusLabels.dispatcherState->setText(state);
+    drawCarAtFloor(statusLabels.currentFloor->text().toInt());
 }
 
-void LiftPanel::setCarState(const QString& state) {
+void UiPanel::setCarState(const QString& state) {
     statusLabels.carState->setText(state);
 }
 
-void LiftPanel::setDoorState(const QString& state) {
+void UiPanel::setDoorState(const QString& state) {
     statusLabels.doorState->setText(state);
 }
 
-void LiftPanel::clearCabinRequest(int floor) {
+void UiPanel::clearCabinRequest(int floor) {
     setCabinButtonActive(floor, false);
+}
+
+void UiPanel::startAnimation(const QString& resourcePath, int floor) {
+    if (Constants::isFloorValid(floor)) {
+        stopAnimation(floor);
+        QMovie* movie = new QMovie(resourcePath, QByteArray(), this);
+        animationMovies[floor] = movie;
+        drawCarAtFloor(statusLabels.currentFloor->text().toInt());
+        movie->start();
+    }
+}
+
+void UiPanel::stopAnimation(int floor) {
+    auto animation = animationMovies.find(floor);
+    if (animation != animationMovies.end()) {
+        animation->second->stop();
+        delete animation->second;
+        animationMovies.erase(animation);
+        drawCarAtFloor(statusLabels.currentFloor->text().toInt());
+    }
 }

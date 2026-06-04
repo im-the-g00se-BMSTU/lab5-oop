@@ -1,18 +1,18 @@
-#include "lift_car.h"
+#include "car.h"
 
-LiftCar::LiftCar(QObject* parent)
+Car::Car(QObject* parent)
     : QObject(parent),
     activeFloor(1),
-    currentDirection(LiftConstants::noDirection),
-    plannedDirection(LiftConstants::noDirection),
+    currentDirection(Constants::noDirection),
+    plannedDirection(Constants::noDirection),
     state(CarState::Parked) {
 
     setupStateNames();
     travelTimer.setSingleShot(false);
-    connect(&travelTimer, &QTimer::timeout, this, &LiftCar::completeFloorStep);
+    connect(&travelTimer, &QTimer::timeout, this, &Car::completeFloorStep);
 }
 
-void LiftCar::setupStateNames() {
+void Car::setupStateNames() {
     stateNames[CarState::Parked] = "PARKED";
     stateNames[CarState::Preparing] = "PREPARING";
     stateNames[CarState::Moving] = "MOVING";
@@ -20,7 +20,7 @@ void LiftCar::setupStateNames() {
     stateNames[CarState::Ready] = "READY";
 }
 
-QString LiftCar::stateText() const {
+QString Car::stateText() const {
     QString text;
     auto stateName = stateNames.find(state);
     if (stateName != stateNames.end())
@@ -28,58 +28,58 @@ QString LiftCar::stateText() const {
     return text;
 }
 
-void LiftCar::changeState(CarState nextState) {
+void Car::changeState(CarState nextState) {
     state = nextState;
     emit stateChanged(stateText());
 }
 
-void LiftCar::setDirection(int direction) {
+void Car::setDirection(int direction) {
     currentDirection = direction;
 }
 
-int LiftCar::currentFloor() const {
+int Car::currentFloor() const {
     return activeFloor;
 }
 
-int LiftCar::direction() const {
+int Car::direction() const {
     return currentDirection;
 }
 
-void LiftCar::prepareForMovement(int direction) {
+void Car::prepareForMovement(int direction) {
     if (state == CarState::Parked || state == CarState::Ready) {
         plannedDirection = direction;
         changeState(CarState::Preparing);
     }
 }
 
-void LiftCar::beginMovement() {
+void Car::beginMovement() {
     if (state == CarState::Preparing) {
         setDirection(plannedDirection);
         changeState(CarState::Moving);
-        travelTimer.start(LiftConstants::travelIntervalMs);
+        travelTimer.start(Constants::travelIntervalMs);
     }
 }
 
-void LiftCar::stopAtCurrentFloor() {
+void Car::stopAtCurrentFloor() {
     if (state == CarState::Moving) {
         travelTimer.stop();
-        setDirection(LiftConstants::noDirection);
+        setDirection(Constants::noDirection);
         changeState(CarState::Parked);
         emit movementStopped(activeFloor);
     }
 }
 
-void LiftCar::lockCabin() {
+void Car::lockCabin() {
     if (state == CarState::Parked || state == CarState::Ready)
         changeState(CarState::Locked);
 }
 
-void LiftCar::releaseCabin() {
+void Car::releaseCabin() {
     if (state == CarState::Locked)
         changeState(CarState::Ready);
 }
 
-void LiftCar::completeFloorStep() {
+void Car::completeFloorStep() {
     activeFloor += currentDirection;
     emit floorReached(activeFloor);
 }

@@ -1,15 +1,15 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include "lift_constants.h"
-#include "lift_group_facade.h"
-#include "simulation_logger.h"
+#include "constants.h"
+#include "facade.h"
+#include "logger.h"
 
 #include <QMainWindow>
 #include <vector>
 
-class LiftGroupFacade;
-class SimulationLogger;
+class Facade;
+class Logger;
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -22,10 +22,10 @@ class MainWindow : public QMainWindow {
 
 private:
     Ui::MainWindow* ui;
-    SimulationLogger* logger;
-    std::vector<LiftGroupFacade*> liftGroups;
+    Logger* logger;
+    std::vector<Facade*> liftGroups;
 
-    void addLiftGroup(LiftGroupFacade* group);
+    void addLiftGroup(Facade* group);
 
 public:
     explicit MainWindow(QWidget* parent = nullptr);

@@ -1,14 +1,26 @@
-#ifndef LIFT_CONSTANTS_H
-#define LIFT_CONSTANTS_H
+#ifndef CONSTANTS_H
+#define CONSTANTS_H
 
 #include <cstdlib>
-#include <type_traits>
 
-namespace LiftConstants {
+namespace Constants {
+// изменяемые
+constexpr int studentLiftCount = 8;
+constexpr int teacherLiftCount = 1;
+
+constexpr int studentIgnoredFloor = 3;
+
+constexpr int studentStuckChanceDenominator = 10;
+constexpr int teacherSecurityChanceDenominator = 15;
+
+constexpr int travelIntervalMs = 1000;
+constexpr int doorOpenIntervalMs = 1000;
+constexpr int doorCloseIntervalMs = 1000;
+constexpr int floorWaitIntervalMs = 1500;
+constexpr int teacherSecurityAnimationIntervalMs = 2000;
+
+// неизменяемые
 constexpr int floorCount = 5;
-
-constexpr int studentLiftCount = 12;
-constexpr int teacherLiftCount = 0;
 constexpr int maxLiftCount = 12;
 
 constexpr int invalidLiftIndex = -1;
@@ -16,11 +28,6 @@ constexpr int invalidLiftIndex = -1;
 constexpr int noDirection = 0;
 constexpr int upDirection = 1;
 constexpr int downDirection = -1;
-
-constexpr int travelIntervalMs = 1000;
-constexpr int doorOpenIntervalMs = 1000;
-constexpr int doorCloseIntervalMs = 1000;
-constexpr int floorWaitIntervalMs = 1500;
 
 inline bool isFloorValid(int floor) {
     return floor >= 1 && floor <= floorCount;
@@ -38,6 +45,4 @@ static_assert(!(studentLiftCount + teacherLiftCount == maxLiftCount &&
               "When using maxLiftCount lifts, both studentLiftCount and teacherLiftCount must be even numbers");
 }
 
-
-
-#endif // LIFT_CONSTANTS_H
+#endif // CONSTANTS_H

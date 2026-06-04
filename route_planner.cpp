@@ -1,51 +1,47 @@
 #include "route_planner.h"
 
 bool RoutePlanner::isAhead(int floor, int currentFloor, int direction) const {
-    return direction == LiftConstants::noDirection && floor != currentFloor
-           || (direction == LiftConstants::upDirection && floor > currentFloor)
-           || (direction == LiftConstants::downDirection && floor < currentFloor);
+    return direction == Constants::noDirection && floor != currentFloor
+           || (direction == Constants::upDirection && floor > currentFloor)
+           || (direction == Constants::downDirection && floor < currentFloor);
 }
 
 bool RoutePlanner::isFurtherInDirection(int candidateFloor, int selectedFloor, int direction) const {
-    return (direction == LiftConstants::upDirection && candidateFloor > selectedFloor)
-        || (direction == LiftConstants::downDirection && candidateFloor < selectedFloor);
+    return (direction == Constants::upDirection && candidateFloor > selectedFloor)
+        || (direction == Constants::downDirection && candidateFloor < selectedFloor);
 }
 
-int RoutePlanner::chooseAlongDirection(int currentFloor, int direction, const std::vector<LiftRequest>& requests) const {
+int RoutePlanner::chooseAlongDirection(int currentFloor, int direction, const std::vector<int>& requests) const {
     int destination = currentFloor;
-    for (const LiftRequest& request : requests)
-        if (isAhead(request.floor(), currentFloor, direction) && isFurtherInDirection(request.floor(), destination, direction))
-            destination = request.floor();
+    for (int requestFloor : requests)
+        if (isAhead(requestFloor, currentFloor, direction) && isFurtherInDirection(requestFloor, destination, direction))
+            destination = requestFloor;
     return destination;
 }
 
-int RoutePlanner::chooseNearest(int currentFloor, const std::vector<LiftRequest>& requests) const {
+int RoutePlanner::chooseNearest(int currentFloor, const std::vector<int>& requests) const {
     int destination = currentFloor;
-    int bestDistance = LiftConstants::floorCount;
-    for (const LiftRequest& request : requests) {
-        int distance = LiftConstants::distanceBetweenFloors(request.floor(), currentFloor);
+    int bestDistance = Constants::floorCount;
+    for (int requestFloor : requests) {
+        int distance = Constants::distanceBetweenFloors(requestFloor, currentFloor);
         if (distance < bestDistance) {
             bestDistance = distance;
-            destination = request.floor();
+            destination = requestFloor;
         }
     }
     return destination;
 }
 
-bool RoutePlanner::canServeOnRoute(int currentFloor, int direction, int requestFloor) const {
-    return isAhead(requestFloor, currentFloor, direction);
-}
-
-int RoutePlanner::nextDestination(int currentFloor, int direction, const std::vector<LiftRequest>& requests) const {
+int RoutePlanner::nextDestination(int currentFloor, int direction, const std::vector<int>& requests) const {
     int destination = chooseAlongDirection(currentFloor, direction, requests);
     if (destination == currentFloor)
         destination = chooseNearest(currentFloor, requests);
     return destination;
 }
 
-bool RoutePlanner::shouldServeFloor(int floor, const std::vector<LiftRequest>& requests) const {
+bool RoutePlanner::shouldServeFloor(int floor, const std::vector<int>& requests) const {
     bool shouldServe = false;
-    for (const LiftRequest& request : requests)
-        shouldServe = shouldServe || request.matchesFloor(floor);
+    for (int requestFloor : requests)
+        shouldServe = shouldServe || requestFloor == floor;
     return shouldServe;
 }

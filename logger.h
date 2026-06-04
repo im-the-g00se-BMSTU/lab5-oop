@@ -1,14 +1,14 @@
-#ifndef SIMULATION_LOGGER_H
-#define SIMULATION_LOGGER_H
+#ifndef LOGGER_H
+#define LOGGER_H
 
 #include <QDebug>
 #include <QObject>
 
-class SimulationLogger : public QObject {
+class Logger : public QObject {
     Q_OBJECT
 
 public:
-    explicit SimulationLogger(QObject* parent = nullptr)
+    explicit Logger(QObject* parent = nullptr)
         : QObject(parent) {}
 
 public slots:
@@ -17,4 +17,4 @@ public slots:
     }
 };
 
-#endif // SIMULATION_LOGGER_H
+#endif // LOGGER_H

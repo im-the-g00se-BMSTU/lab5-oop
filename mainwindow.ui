@@ -92,6 +92,30 @@ QLabel[activeLift=&quot;true&quot;] {
     font-weight: 900;
 }
 
+QLabel[activeLift=&quot;true&quot;][liftState=&quot;IDLE&quot;] {
+    background-color: rgba(0, 104, 255, 0.22);
+    border-color: #0b7cff;
+    color: #20c7ff;
+}
+
+QLabel[activeLift=&quot;true&quot;][liftState=&quot;SERVING_FLOOR&quot;] {
+    background-color: rgba(0, 184, 92, 0.22);
+    border-color: #00b85c;
+    color: #42f59b;
+}
+
+QLabel[activeLift=&quot;true&quot;][liftState=&quot;MOVING&quot;] {
+    background-color: rgba(255, 190, 0, 0.22);
+    border-color: #f0b000;
+    color: #ffd966;
+}
+
+QLabel[activeLift=&quot;true&quot;][liftState=&quot;STUCK&quot;] {
+    background-color: rgba(255, 70, 70, 0.24);
+    border-color: #ff4a4a;
+    color: #ff8a8a;
+}
+
 QPushButton[activeRequest=&quot;true&quot;] {
     background-color: rgba(0, 104, 255, 0.22);
     border-color: #0b7cff;

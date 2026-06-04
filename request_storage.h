@@ -1,41 +1,39 @@
 #ifndef REQUEST_STORAGE_H
 #define REQUEST_STORAGE_H
 
-#include "lift_request.h"
-
 #include <vector>
 
 class RequestStorage {
 private:
-    std::vector<LiftRequest> pendingRequests;
+    std::vector<int> pendingFloors;
 
 public:
     bool isEmpty() const {
-        return pendingRequests.empty();
+        return pendingFloors.empty();
     }
 
     bool containsFloor(int floor) const {
         bool found = false;
-        for (const LiftRequest& request : pendingRequests)
-            found = found || request.matchesFloor(floor);
+        for (int pendingFloor : pendingFloors)
+            found = found || pendingFloor == floor;
         return found;
     }
 
     void add(int floor) {
         if (!containsFloor(floor))
-            pendingRequests.emplace_back(floor);
+            pendingFloors.push_back(floor);
     }
 
     void eraseFloor(int floor) {
-        std::vector<LiftRequest> remainingRequests;
-        for (const LiftRequest& request : pendingRequests)
-            if (!request.matchesFloor(floor))
-                remainingRequests.push_back(request);
-        pendingRequests = remainingRequests;
+        std::vector<int> remainingFloors;
+        for (int pendingFloor : pendingFloors)
+            if (pendingFloor != floor)
+                remainingFloors.push_back(pendingFloor);
+        pendingFloors = remainingFloors;
     }
 
-    const std::vector<LiftRequest>& requests() const {
-        return pendingRequests;
+    const std::vector<int>& requests() const {
+        return pendingFloors;
     }
 };
 

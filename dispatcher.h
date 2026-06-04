@@ -1,16 +1,16 @@
-#ifndef LIFT_DISPATCHER_H
-#define LIFT_DISPATCHER_H
+#ifndef DISPATCHER_H
+#define DISPATCHER_H
 
-#include "door_mechanism.h"
-#include "lift_car.h"
+#include "door.h"
+#include "car.h"
 #include "request_storage.h"
 #include "route_planner.h"
-#include "lift_constants.h"
+#include "constants.h"
 
 #include <QObject>
 #include <map>
 
-class LiftDispatcher : public QObject {
+class Dispatcher : public QObject {
     Q_OBJECT
 
 private:
@@ -18,11 +18,12 @@ private:
         Idle,
         SelectingTarget,
         Moving,
-        ServingFloor
+        ServingFloor,
+        Stuck
     };
 
-    LiftCar* car;
-    DoorMechanism* doors;
+    Car* car;
+    Door* doors;
     RequestStorage storage;
     RoutePlanner planner;
     DispatcherState state;
@@ -39,6 +40,7 @@ private:
     void serveCurrentFloor();
     void reportStartedService();
     int directionToDestination() const;
+    bool isServingFloor(int floor) const;
 
 private slots:
     void handleFloorReached(int floor);
@@ -47,11 +49,13 @@ private slots:
     void handleDoorsClosed();
 
 public:
-    explicit LiftDispatcher(QObject* parent = nullptr);
+    explicit Dispatcher(QObject* parent = nullptr);
     int currentFloor() const;
     int direction() const;
     bool isFree() const;
+    bool isStuck() const;
     bool canServeHallRequest(int floor) const;
+    void makeStuck();
 
 public slots:
     void addRequest(int floor);
@@ -64,6 +68,7 @@ signals:
     void doorStateChanged(QString stateName);
     void eventReported(QString message);
     void requestServed(int floor);
+    void requestCompleted(int floor);
 };
 
-#endif // LIFT_DISPATCHER_H
+#endif // DISPATCHER_H

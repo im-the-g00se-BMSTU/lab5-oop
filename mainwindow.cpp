@@ -4,21 +4,23 @@
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent),
     ui(new Ui::MainWindow),
-    logger(new SimulationLogger(this)) {
+    logger(new Logger(this)) {
 
     ui->setupUi(this);
     ui->callLayout->addStretch(1);
 
-    if (LiftConstants::studentLiftCount > 0)
-        addLiftGroup(new LiftGroupFacade(
-        LiftConstants::studentLiftCount,
+    if (Constants::studentLiftCount > 0)
+        addLiftGroup(new Facade(
+        Constants::studentLiftCount,
         "для студентов",
+        new StudentLiftStrategy(),
         this
         ));
-    if (LiftConstants::teacherLiftCount > 0)
-        addLiftGroup(new LiftGroupFacade(
-        LiftConstants::teacherLiftCount,
+    if (Constants::teacherLiftCount > 0)
+        addLiftGroup(new Facade(
+        Constants::teacherLiftCount,
         "для преподавателей",
+        new TeacherLiftStrategy(),
         this
         ));
 
@@ -30,9 +32,9 @@ MainWindow::~MainWindow() {
     delete ui;
 }
 
-void MainWindow::addLiftGroup(LiftGroupFacade* group) {
+void MainWindow::addLiftGroup(Facade* group) {
     ui->callLayout->addWidget(group->callWidget());
     ui->rootLayout->addWidget(group->liftWidget(), group->stretchFactor());
     liftGroups.push_back(group);
-    connect(group, &LiftGroupFacade::eventReported, logger, &SimulationLogger::write);
+    connect(group, &Facade::eventReported, logger, &Logger::write);
 }
