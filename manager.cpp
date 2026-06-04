@@ -1,5 +1,7 @@
 #include "manager.h"
 
+// ======== public ========
+
 Manager::Manager(
     int liftCount,
     const QString& liftType,
@@ -18,6 +20,8 @@ Manager::Manager(
 Manager::~Manager() {
     delete serviceStrategy;
 }
+
+// ======== private ========
 
 void Manager::createDispatchers() {
     try {
@@ -38,6 +42,9 @@ void Manager::connectDispatcherReports() {
             emit eventReported(indexedMessage);
             emit liftEventReported(liftIndex, message);
         });
+        connect(dispatcher, &Dispatcher::messageBoxRequested, this, [this, liftIndex](const QString& message) {
+            emit messageBoxRequested(dispatcherTypeName + " " + QString::number(liftIndex + 1) + ": " + message);
+        });
         ++liftIndex;
     }
 }
@@ -46,6 +53,8 @@ void Manager::connectStrategyReports() {
     if (serviceStrategy) {
         connect(serviceStrategy, &ManagerStrategy::eventReported,
                 this, &Manager::eventReported);
+        connect(serviceStrategy, &ManagerStrategy::messageBoxRequested,
+                this, &Manager::messageBoxRequested);
         connect(serviceStrategy, &ManagerStrategy::liftAnimationStarted,
                 this, &Manager::liftAnimationStarted);
         connect(serviceStrategy, &ManagerStrategy::liftAnimationStopped,
@@ -57,12 +66,7 @@ bool Manager::isLiftIndexValid(int liftIndex) const {
     return liftIndex >= 0 && liftIndex < liftCount();
 }
 
-int Manager::selectDispatcher(int floor) const {
-    int selectedIndex = Constants::invalidLiftIndex;
-    if (serviceStrategy)
-        selectedIndex = serviceStrategy->selectDispatcher(dispatchers, floor);
-    return selectedIndex;
-}
+// ======== public ========
 
 int Manager::liftCount() const {
     return static_cast<int>(dispatchers.size());
@@ -75,17 +79,20 @@ Dispatcher* Manager::dispatcherAt(int liftIndex) const {
     return dispatcher;
 }
 
+// ======== public slots ========
+
 void Manager::requestAvailableLift(int floor) {
     if (!Constants::isFloorValid(floor))
         emit eventReported("Некорректный этаж вызова с этажа: " + QString::number(floor));
     else {
-        int liftIndex = selectDispatcher(floor);
+        int liftIndex = Constants::invalidLiftIndex;
+        if (serviceStrategy)
+            liftIndex = serviceStrategy->selectDispatcher(dispatchers, floor);
         if (liftIndex == Constants::invalidLiftIndex)
-            emit eventReported("Нет доступного лифта для этажа " + QString::number(floor));
+            emit messageBoxRequested("Нет доступного лифта для этажа " + QString::number(floor));
         else {
             emit hallRequestAssigned(liftIndex, floor);
-            bool isAccepted = serviceStrategy->handleHallRequest(*dispatchers[liftIndex], liftIndex, floor);
-            if (!isAccepted)
+            if (!serviceStrategy->handleHallRequest(*dispatchers[liftIndex], liftIndex, floor))
                 emit hallRequestCanceled(floor);
         }
     }
@@ -96,9 +103,8 @@ void Manager::requestSpecificLift(int liftIndex, int floor) {
         emit eventReported("Некорректный индекс лифта: " + QString::number(liftIndex));
     else if (!Constants::isFloorValid(floor))
         emit eventReported("Некорректный этаж вызова из кабины: " + QString::number(floor));
-    else {
-        bool isAccepted = serviceStrategy->handleCabinRequest(*dispatchers[liftIndex], liftIndex, floor);
-        if (!isAccepted)
-            emit cabinRequestCanceled(liftIndex, floor);
-    }
+    else if (dispatchers[liftIndex]->isStuck())
+        emit eventReported("Лифт застрял и не может принять запрос из кабины");
+    else if (!serviceStrategy->handleCabinRequest(*dispatchers[liftIndex], liftIndex, floor))
+        emit cabinRequestCanceled(liftIndex, floor);
 }

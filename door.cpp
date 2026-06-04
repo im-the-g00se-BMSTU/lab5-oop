@@ -1,5 +1,7 @@
 #include "door.h"
 
+// ======== public ========
+
 Door::Door(QObject* parent)
     : QObject(parent),
     state(DoorState::Closed) {
@@ -12,6 +14,28 @@ Door::Door(QObject* parent)
     connect(&stayingOpenTimer, &QTimer::timeout, this, &Door::finishWaiting);
     connect(&closingTimer, &QTimer::timeout, this, &Door::finishClosing);
 }
+
+void Door::openDoors() {
+    if (state == DoorState::Closed || state == DoorState::Closing) {
+        stopAllTimers();
+        changeState(DoorState::Opening);
+        openingTimer.start(Constants::doorOpenIntervalMs);
+    }
+}
+
+void Door::closeDoors() {
+    if (state == DoorState::Open) {
+        stopAllTimers();
+        changeState(DoorState::Closing);
+        closingTimer.start(Constants::doorCloseIntervalMs);
+    }
+}
+
+void Door::stopDoors() {
+    stopAllTimers();
+}
+
+// ======== private ========
 
 void Door::setupStateNames() {
     stateNames[DoorState::Opening] = "OPENING";
@@ -39,37 +63,13 @@ void Door::stopAllTimers() {
     closingTimer.stop();
 }
 
-void Door::beginOpening() {
-    stopAllTimers();
-    changeState(DoorState::Opening);
-    openingTimer.start(Constants::doorOpenIntervalMs);
-}
+// ======== private slots ========
 
-void Door::holdOpen() {
+void Door::finishOpening() {
     stopAllTimers();
     changeState(DoorState::Open);
     emit opened();
     stayingOpenTimer.start(Constants::floorWaitIntervalMs);
-}
-
-void Door::beginClosing() {
-    stopAllTimers();
-    changeState(DoorState::Closing);
-    closingTimer.start(Constants::doorCloseIntervalMs);
-}
-
-void Door::openDoors() {
-    if (state == DoorState::Closed || state == DoorState::Closing)
-        beginOpening();
-}
-
-void Door::closeDoors() {
-    if (state == DoorState::Open)
-        beginClosing();
-}
-
-void Door::finishOpening() {
-    holdOpen();
 }
 
 void Door::finishWaiting() {

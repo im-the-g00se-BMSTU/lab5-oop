@@ -43,8 +43,9 @@ private:
     void addCabinButtons(QHBoxLayout* layout);
     void addStatusRows(QGridLayout* layout);
     void drawCarAtFloor(int floor);
-    QPushButton* cabinButtonAt(int floor) const;
     void setCabinButtonActive(int floor, bool isActive);
+    void clearCabinButtons();
+    void setCabinButtonsEnabled(bool isEnabled);
 
 public:
     explicit UiPanel(const QString& title, QWidget* parent = nullptr);

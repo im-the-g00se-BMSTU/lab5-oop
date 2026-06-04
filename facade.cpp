@@ -1,5 +1,7 @@
 #include "facade.h"
 
+// ======== private ========
+
 namespace {
 constexpr int liftGridRowCount = 2;
 
@@ -23,6 +25,8 @@ void setButtonActive(QPushButton* button, bool isActive) {
 }
 }
 
+// ======== public ========
+
 Facade::Facade(
     int liftCount,
     const QString& audience,
@@ -43,7 +47,10 @@ Facade::Facade(
     connectHallButtons();
     connectManagerSignals();
     connect(manager, &Manager::eventReported, this, &Facade::eventReported);
+    connect(manager, &Manager::messageBoxRequested, this, &Facade::messageBoxRequested);
 }
+
+// ======== private ========
 
 void Facade::setupCallLayout() {
     QFormLayout* callLayout = new QFormLayout(callGroupBox);
@@ -65,9 +72,10 @@ void Facade::createHallButtons(QFormLayout* callLayout) {
 }
 
 void Facade::createLiftPanels() {
+    int columnCount = liftGridColumnCount();
     for (int index = 0; index < manager->liftCount(); ++index) {
         UiPanel* panel = new UiPanel("Лифт " + QString::number(index + 1), liftGroupBox);
-        liftGridLayout->addWidget(panel, liftGridRow(index), liftGridColumn(index), Qt::AlignCenter);
+        liftGridLayout->addWidget(panel, index / columnCount, index % columnCount, Qt::AlignCenter);
         liftPanels.push_back(panel);
         connectLiftPanel(index);
     }
@@ -103,7 +111,9 @@ void Facade::connectLiftPanel(int liftIndex) {
     connect(dispatcher, &Dispatcher::dispatcherStateChanged, panel, &UiPanel::setDispatcherState);
     connect(dispatcher, &Dispatcher::carStateChanged, panel, &UiPanel::setCarState);
     connect(dispatcher, &Dispatcher::doorStateChanged, panel, &UiPanel::setDoorState);
-    connect(dispatcher, &Dispatcher::requestServed, this, &Facade::clearHallRequest);
+    connect(dispatcher, &Dispatcher::requestServed, this, [this](int floor) {
+        setHallButtonActive(floor, false);
+    });
     connect(dispatcher, &Dispatcher::requestCompleted, this, &Facade::completeHallRequest);
     connect(dispatcher, &Dispatcher::requestServed, panel, &UiPanel::clearCabinRequest);
     connect(manager, &Manager::cabinRequestCanceled, panel, [panel, liftIndex](int requestLiftIndex, int floor) {
@@ -144,12 +154,8 @@ void Facade::setHallRequestBlocked(int floor, bool isBlocked) {
         blockedHallRequests[index] = isBlocked;
 }
 
-void Facade::clearHallRequest(int floor) {
-    setHallButtonActive(floor, false);
-}
-
 void Facade::completeHallRequest(int floor) {
-    clearHallRequest(floor);
+    setHallButtonActive(floor, false);
     setHallRequestBlocked(floor, false);
 }
 
@@ -157,13 +163,7 @@ int Facade::liftGridColumnCount() const {
     return (manager->liftCount() + liftGridRowCount - 1) / liftGridRowCount;
 }
 
-int Facade::liftGridRow(int liftIndex) const {
-    return liftIndex / liftGridColumnCount();
-}
-
-int Facade::liftGridColumn(int liftIndex) const {
-    return liftIndex % liftGridColumnCount();
-}
+// ======== public ========
 
 int Facade::stretchFactor() const {
     return liftGridColumnCount();

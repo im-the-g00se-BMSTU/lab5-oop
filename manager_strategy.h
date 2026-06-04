@@ -7,7 +7,8 @@
 #include <QObject>
 #include <QString>
 #include <QTimer>
-#include <random>
+#include <cstdlib>
+#include <ctime>
 #include <vector>
 
 class Dispatcher;
@@ -29,6 +30,7 @@ public:
 
 signals:
     void eventReported(QString message);
+    void messageBoxRequested(QString message);
     void liftAnimationStarted(int liftIndex, int floor, QString resourcePath);
     void liftAnimationStopped(int liftIndex, int floor);
 };

@@ -1,5 +1,7 @@
 #include "manager_strategy.h"
 
+// ======== protected ========
+
 int ManagerStrategy::distanceToRequest(const Dispatcher* dispatcher, int floor) const {
     int distance = Constants::floorCount;
     if (dispatcher)
@@ -9,12 +11,8 @@ int ManagerStrategy::distanceToRequest(const Dispatcher* dispatcher, int floor) 
 
 bool ManagerStrategy::randomChanceGenerator(int chanceDenominator) const {
     bool isGenerated = false;
-    if (chanceDenominator > 0) {
-        std::random_device randomDevice;
-        std::mt19937 generator(randomDevice());
-        std::uniform_int_distribution<int> distribution(1, chanceDenominator);
-        isGenerated = distribution(generator) == 1;
-    }
+    if (chanceDenominator > 0)
+        isGenerated = std::rand() % chanceDenominator == 0;
     return isGenerated;
 }
 
@@ -31,6 +29,8 @@ int ManagerStrategy::selectNearestDispatcher(const std::vector<Dispatcher*>& dis
     return selectedIndex;
 }
 
+// ======== private ========
+
 int StudentLiftStrategy::selectAvailableDispatcher(const std::vector<Dispatcher*>& dispatchers, int floor) const {
     int selectedIndex = selectNearestDispatcher(dispatchers, floor);
     if (selectedIndex != Constants::invalidLiftIndex && makeDispatcherStuckByChance(*dispatchers[selectedIndex]))
@@ -46,10 +46,12 @@ bool StudentLiftStrategy::makeDispatcherStuckByChance(Dispatcher& dispatcher) co
 }
 
 void StudentLiftStrategy::reportIgnoredFloor(int floor) {
-    emit eventReported(QString::fromUtf8("Лифты не останавливаются на этаже ")
+    emit messageBoxRequested(QString::fromUtf8("Лифты не останавливаются на этаже ")
                        + QString::number(floor)
                        + QString::fromUtf8(". Приносим временные извинения за искренние неудобства."));
 }
+
+// ======== public ========
 
 int StudentLiftStrategy::selectDispatcher(const std::vector<Dispatcher*>& dispatchers, int floor) const {
     int selectedIndex = Constants::invalidLiftIndex;
@@ -80,6 +82,8 @@ bool StudentLiftStrategy::handleCabinRequest(Dispatcher& dispatcher, int, int fl
     return isAccepted;
 }
 
+// ======== public ========
+
 int TeacherLiftStrategy::selectDispatcher(const std::vector<Dispatcher*>& dispatchers, int floor) const {
     int selectedIndex = Constants::invalidLiftIndex;
     int bestDistance = Constants::floorCount;
@@ -100,7 +104,7 @@ bool TeacherLiftStrategy::handleHallRequest(Dispatcher& dispatcher, int liftInde
         dispatcher.addRequest(floor);
     else {
         isAccepted = false;
-        emit eventReported(QString::fromUtf8("В преподавательском лифте был пойман студент"));
+        emit messageBoxRequested(QString::fromUtf8("В преподавательском лифте был обнаружен студент"));
         emit liftAnimationStarted(liftIndex, floor, ":/security.gif");
         QTimer::singleShot(Constants::teacherSecurityAnimationIntervalMs, &dispatcher, [this, liftIndex, floor]() {
             emit liftAnimationStopped(liftIndex, floor);
@@ -109,6 +113,7 @@ bool TeacherLiftStrategy::handleHallRequest(Dispatcher& dispatcher, int liftInde
     return isAccepted;
 }
 
-bool TeacherLiftStrategy::handleCabinRequest(Dispatcher& dispatcher, int liftIndex, int floor) {
-    return handleHallRequest(dispatcher, liftIndex, floor);
+bool TeacherLiftStrategy::handleCabinRequest(Dispatcher& dispatcher, int, int floor) {
+    dispatcher.addRequest(floor);
+    return true;
 }

@@ -50,11 +50,8 @@ private:
     bool isHallRequestBlocked(int floor) const;
     void setHallButtonActive(int floor, bool isActive);
     void setHallRequestBlocked(int floor, bool isBlocked);
-    void clearHallRequest(int floor);
     void completeHallRequest(int floor);
     int liftGridColumnCount() const;
-    int liftGridRow(int liftIndex) const;
-    int liftGridColumn(int liftIndex) const;
 
 public:
     explicit Facade(
@@ -70,6 +67,7 @@ public:
 
 signals:
     void eventReported(QString message);
+    void messageBoxRequested(QString message);
 };
 
 #endif // FACADE_H

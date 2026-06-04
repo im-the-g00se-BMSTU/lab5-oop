@@ -1,5 +1,7 @@
 #include "car.h"
 
+// ======== public ========
+
 Car::Car(QObject* parent)
     : QObject(parent),
     activeFloor(1),
@@ -11,6 +13,54 @@ Car::Car(QObject* parent)
     travelTimer.setSingleShot(false);
     connect(&travelTimer, &QTimer::timeout, this, &Car::completeFloorStep);
 }
+
+int Car::currentFloor() const {
+    return activeFloor;
+}
+
+int Car::direction() const {
+    return currentDirection;
+}
+
+void Car::prepareForMovement(int direction) {
+    if (state == CarState::Parked || state == CarState::Ready) {
+        plannedDirection = direction;
+        changeState(CarState::Preparing);
+    }
+}
+
+void Car::beginMovement() {
+    if (state == CarState::Preparing) {
+        currentDirection = plannedDirection;
+        changeState(CarState::Moving);
+        travelTimer.start(Constants::travelIntervalMs);
+    }
+}
+
+void Car::stopAtCurrentFloor() {
+    if (state == CarState::Moving) {
+        travelTimer.stop();
+        currentDirection = Constants::noDirection;
+        changeState(CarState::Parked);
+        emit movementStopped(activeFloor);
+    }
+}
+
+void Car::lockCabin() {
+    if (state != CarState::Locked) {
+        travelTimer.stop();
+        currentDirection = Constants::noDirection;
+        plannedDirection = Constants::noDirection;
+        changeState(CarState::Locked);
+    }
+}
+
+void Car::releaseCabin() {
+    if (state == CarState::Locked)
+        changeState(CarState::Ready);
+}
+
+// ======== private ========
 
 void Car::setupStateNames() {
     stateNames[CarState::Parked] = "PARKED";
@@ -33,51 +83,7 @@ void Car::changeState(CarState nextState) {
     emit stateChanged(stateText());
 }
 
-void Car::setDirection(int direction) {
-    currentDirection = direction;
-}
-
-int Car::currentFloor() const {
-    return activeFloor;
-}
-
-int Car::direction() const {
-    return currentDirection;
-}
-
-void Car::prepareForMovement(int direction) {
-    if (state == CarState::Parked || state == CarState::Ready) {
-        plannedDirection = direction;
-        changeState(CarState::Preparing);
-    }
-}
-
-void Car::beginMovement() {
-    if (state == CarState::Preparing) {
-        setDirection(plannedDirection);
-        changeState(CarState::Moving);
-        travelTimer.start(Constants::travelIntervalMs);
-    }
-}
-
-void Car::stopAtCurrentFloor() {
-    if (state == CarState::Moving) {
-        travelTimer.stop();
-        setDirection(Constants::noDirection);
-        changeState(CarState::Parked);
-        emit movementStopped(activeFloor);
-    }
-}
-
-void Car::lockCabin() {
-    if (state == CarState::Parked || state == CarState::Ready)
-        changeState(CarState::Locked);
-}
-
-void Car::releaseCabin() {
-    if (state == CarState::Locked)
-        changeState(CarState::Ready);
-}
+// ======== private slots ========
 
 void Car::completeFloorStep() {
     activeFloor += currentDirection;

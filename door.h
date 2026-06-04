@@ -28,9 +28,6 @@ private:
     QString stateText() const;
     void changeState(DoorState nextState);
     void stopAllTimers();
-    void beginOpening();
-    void holdOpen();
-    void beginClosing();
 
 private slots:
     void finishOpening();
@@ -42,6 +39,7 @@ public:
 
     void openDoors();
     void closeDoors();
+    void stopDoors();
 
 signals:
     void opened();

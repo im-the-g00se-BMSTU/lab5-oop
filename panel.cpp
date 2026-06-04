@@ -1,6 +1,10 @@
 #include "panel.h"
 
+// ======== private ========
+
 namespace {
+const QString stuckDispatcherStateName = "STUCK";
+
 QLabel* createShaftLabel() {
     QLabel* label = new QLabel;
     label->setProperty("shaftCell", true);
@@ -43,6 +47,8 @@ void setButtonActive(QPushButton* button, bool isActive) {
 }
 }
 
+// ======== public ========
+
 UiPanel::UiPanel(const QString& title, QWidget* parent)
     : QGroupBox(title, parent),
     dispatcherStateName("IDLE") {
@@ -50,6 +56,8 @@ UiPanel::UiPanel(const QString& title, QWidget* parent)
     setupLayout();
     drawCarAtFloor(1);
 }
+
+// ======== private ========
 
 void UiPanel::setupLayout() {
     QVBoxLayout* mainLayout = new QVBoxLayout(this);
@@ -90,18 +98,23 @@ void UiPanel::addCabinButtons(QHBoxLayout* layout) {
     }
 }
 
-QPushButton* UiPanel::cabinButtonAt(int floor) const {
+void UiPanel::setCabinButtonActive(int floor, bool isActive) {
     QPushButton* button = nullptr;
     int index = floor - 1;
     if (index >= 0 && index < static_cast<int>(cabinButtons.size()))
         button = cabinButtons[index];
-    return button;
-}
-
-void UiPanel::setCabinButtonActive(int floor, bool isActive) {
-    QPushButton* button = cabinButtonAt(floor);
     if (button)
         setButtonActive(button, isActive);
+}
+
+void UiPanel::clearCabinButtons() {
+    for (QPushButton* button : cabinButtons)
+        setButtonActive(button, false);
+}
+
+void UiPanel::setCabinButtonsEnabled(bool isEnabled) {
+    for (QPushButton* button : cabinButtons)
+        button->setEnabled(isEnabled);
 }
 
 void UiPanel::addStatusRows(QGridLayout* layout) {
@@ -159,6 +172,8 @@ void UiPanel::drawCarAtFloor(int floor) {
     }
 }
 
+// ======== public slots ========
+
 void UiPanel::setCurrentFloor(int floor) {
     statusLabels.currentFloor->setText(QString::number(floor));
     drawCarAtFloor(floor);
@@ -171,6 +186,9 @@ void UiPanel::setTargetFloor(int floor) {
 void UiPanel::setDispatcherState(const QString& state) {
     dispatcherStateName = state;
     statusLabels.dispatcherState->setText(state);
+    setCabinButtonsEnabled(state != stuckDispatcherStateName);
+    if (state == stuckDispatcherStateName)
+        clearCabinButtons();
     drawCarAtFloor(statusLabels.currentFloor->text().toInt());
 }
 

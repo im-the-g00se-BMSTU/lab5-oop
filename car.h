@@ -29,7 +29,6 @@ private:
     void setupStateNames();
     QString stateText() const;
     void changeState(CarState nextState);
-    void setDirection(int direction);
 
 private slots:
     void completeFloorStep();

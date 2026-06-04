@@ -38,9 +38,6 @@ private:
     void selectDestination();
     void startTrip();
     void serveCurrentFloor();
-    void reportStartedService();
-    int directionToDestination() const;
-    bool isServingFloor(int floor) const;
 
 private slots:
     void handleFloorReached(int floor);
@@ -52,7 +49,6 @@ public:
     explicit Dispatcher(QObject* parent = nullptr);
     int currentFloor() const;
     int direction() const;
-    bool isFree() const;
     bool isStuck() const;
     bool canServeHallRequest(int floor) const;
     void makeStuck();
@@ -67,6 +63,7 @@ signals:
     void carStateChanged(QString stateName);
     void doorStateChanged(QString stateName);
     void eventReported(QString message);
+    void messageBoxRequested(QString message);
     void requestServed(int floor);
     void requestCompleted(int floor);
 };

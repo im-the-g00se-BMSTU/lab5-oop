@@ -1,6 +1,8 @@
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
 
+// ======== public ========
+
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent),
     ui(new Ui::MainWindow),
@@ -32,9 +34,12 @@ MainWindow::~MainWindow() {
     delete ui;
 }
 
+// ======== private ========
+
 void MainWindow::addLiftGroup(Facade* group) {
     ui->callLayout->addWidget(group->callWidget());
     ui->rootLayout->addWidget(group->liftWidget(), group->stretchFactor());
     liftGroups.push_back(group);
     connect(group, &Facade::eventReported, logger, &Logger::write);
+    connect(group, &Facade::messageBoxRequested, logger, &Logger::showMessageBox);
 }

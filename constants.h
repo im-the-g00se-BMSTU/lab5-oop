@@ -10,8 +10,8 @@ constexpr int teacherLiftCount = 1;
 
 constexpr int studentIgnoredFloor = 3;
 
-constexpr int studentStuckChanceDenominator = 10;
-constexpr int teacherSecurityChanceDenominator = 15;
+constexpr int studentStuckChanceDenominator = 7;
+constexpr int teacherSecurityChanceDenominator = 5;
 
 constexpr int travelIntervalMs = 1000;
 constexpr int doorOpenIntervalMs = 1000;

@@ -2,6 +2,7 @@
 #define LOGGER_H
 
 #include <QDebug>
+#include <QMessageBox>
 #include <QObject>
 
 class Logger : public QObject {
@@ -14,6 +15,10 @@ public:
 public slots:
     void write(QString message) const {
         qDebug().noquote() << message;
+    }
+
+    void showMessageBox(QString message) const {
+        QMessageBox::information(nullptr, "Message", message);
     }
 };
 

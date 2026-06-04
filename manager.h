@@ -25,7 +25,6 @@ private:
     void connectDispatcherReports();
     void connectStrategyReports();
     bool isLiftIndexValid(int liftIndex) const;
-    int selectDispatcher(int floor) const;
 
 public:
     explicit Manager(
@@ -45,6 +44,7 @@ public slots:
 
 signals:
     void eventReported(QString message);
+    void messageBoxRequested(QString message);
     void cabinRequestCanceled(int liftIndex, int floor);
     void liftEventReported(int liftIndex, QString message);
     void hallRequestAssigned(int liftIndex, int floor);
