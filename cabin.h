@@ -1,17 +1,20 @@
-#ifndef CAR_H
-#define CAR_H
+#ifndef CABIN_H
+#define CABIN_H
 
-#include "constants.h"
+#include "direction.h"
 
 #include <QObject>
 #include <QTimer>
 #include <map>
 
-class Car : public QObject {
+class Cabin : public QObject {
     Q_OBJECT
 
 private:
-    enum class CarState {
+    static constexpr int startFloor = 1;
+    static constexpr int travelIntervalMs = 1000;
+
+    enum class CabinState {
         Parked,
         Preparing,
         Moving,
@@ -21,25 +24,25 @@ private:
 
     QTimer travelTimer;
     int activeFloor;
-    int currentDirection;
-    int plannedDirection;
-    CarState state;
-    std::map<CarState, QString> stateNames;
+    Direction currentDirection;
+    Direction plannedDirection;
+    CabinState state;
+    std::map<CabinState, QString> stateNames;
 
     void setupStateNames();
     QString stateText() const;
-    void changeState(CarState nextState);
+    void changeState(CabinState nextState);
 
 private slots:
     void completeFloorStep();
 
 public:
-    explicit Car(QObject* parent = nullptr);
+    explicit Cabin(QObject* parent = nullptr);
 
     int currentFloor() const;
-    int direction() const;
+    Direction direction() const;
 
-    void prepareForMovement(int direction);
+    void prepareForMovement(Direction direction);
     void beginMovement();
     void stopAtCurrentFloor();
     void lockCabin();
@@ -51,4 +54,4 @@ signals:
     void stateChanged(QString stateName);
 };
 
-#endif // CAR_H
+#endif // CABIN_H

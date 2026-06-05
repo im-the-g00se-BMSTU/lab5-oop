@@ -1,7 +1,7 @@
 #ifndef PANEL_H
 #define PANEL_H
 
-#include "constants.h"
+#include "dispatcher.h"
 
 #include <QByteArray>
 #include <QGridLayout>
@@ -24,7 +24,7 @@ struct StatusLabels {
     QLabel* currentFloor;
     QLabel* targetFloor;
     QLabel* dispatcherState;
-    QLabel* carState;
+    QLabel* cabinState;
     QLabel* doorState;
 };
 
@@ -42,7 +42,7 @@ private:
     void addShaftRows(QGridLayout* layout);
     void addCabinButtons(QHBoxLayout* layout);
     void addStatusRows(QGridLayout* layout);
-    void drawCarAtFloor(int floor);
+    void drawCabinAtFloor(int floor);
     void setCabinButtonActive(int floor, bool isActive);
     void clearCabinButtons();
     void setCabinButtonsEnabled(bool isEnabled);
@@ -54,7 +54,7 @@ public slots:
     void setCurrentFloor(int floor);
     void setTargetFloor(int floor);
     void setDispatcherState(const QString& state);
-    void setCarState(const QString& state);
+    void setCabinState(const QString& state);
     void setDoorState(const QString& state);
     void clearCabinRequest(int floor);
     void startAnimation(const QString& resourcePath, int floor);

@@ -30,10 +30,12 @@ void setButtonActive(QPushButton* button, bool isActive) {
 Facade::Facade(
     int liftCount,
     const QString& audience,
+    DispatcherPool* dispatcherPool,
     ManagerStrategy* serviceStrategy,
     QWidget* parent
 )
     : QObject(parent),
+    dispatcherPool(dispatcherPool),
     manager(new Manager(liftCount, "Лифт " + audience, serviceStrategy, this)),
     liftGroupBox(new QGroupBox("Лифты " + audience, parent)),
     callGroupBox(new QGroupBox("Вызов " + audience, parent)),
@@ -46,8 +48,11 @@ Facade::Facade(
     createLiftPanels();
     connectHallButtons();
     connectManagerSignals();
-    connect(manager, &Manager::eventReported, this, &Facade::eventReported);
-    connect(manager, &Manager::messageBoxRequested, this, &Facade::messageBoxRequested);
+}
+
+Facade::~Facade() {
+    delete manager;
+    delete dispatcherPool;
 }
 
 // ======== private ========
@@ -63,7 +68,7 @@ void Facade::setupLiftLayout() {
 }
 
 void Facade::createHallButtons(QFormLayout* callLayout) {
-    for (int floor = Constants::floorCount; floor >= 1; --floor) {
+    for (int floor = Dispatcher::floorCount; floor >= 1; --floor) {
         QPushButton* button = createCallButton(floor);
         callLayout->addRow(createFloorLabel(floor), button);
         hallButtons.insert(hallButtons.begin(), button);
@@ -109,7 +114,7 @@ void Facade::connectLiftPanel(int liftIndex) {
     connect(dispatcher, &Dispatcher::currentFloorChanged, panel, &UiPanel::setCurrentFloor);
     connect(dispatcher, &Dispatcher::targetFloorChanged, panel, &UiPanel::setTargetFloor);
     connect(dispatcher, &Dispatcher::dispatcherStateChanged, panel, &UiPanel::setDispatcherState);
-    connect(dispatcher, &Dispatcher::carStateChanged, panel, &UiPanel::setCarState);
+    connect(dispatcher, &Dispatcher::cabinStateChanged, panel, &UiPanel::setCabinState);
     connect(dispatcher, &Dispatcher::doorStateChanged, panel, &UiPanel::setDoorState);
     connect(dispatcher, &Dispatcher::requestServed, this, [this](int floor) {
         setHallButtonActive(floor, false);

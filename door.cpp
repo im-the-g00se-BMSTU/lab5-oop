@@ -19,7 +19,7 @@ void Door::openDoors() {
     if (state == DoorState::Closed || state == DoorState::Closing) {
         stopAllTimers();
         changeState(DoorState::Opening);
-        openingTimer.start(Constants::doorOpenIntervalMs);
+        openingTimer.start(openingIntervalMs);
     }
 }
 
@@ -27,7 +27,7 @@ void Door::closeDoors() {
     if (state == DoorState::Open) {
         stopAllTimers();
         changeState(DoorState::Closing);
-        closingTimer.start(Constants::doorCloseIntervalMs);
+        closingTimer.start(closingIntervalMs);
     }
 }
 
@@ -69,7 +69,7 @@ void Door::finishOpening() {
     stopAllTimers();
     changeState(DoorState::Open);
     emit opened();
-    stayingOpenTimer.start(Constants::floorWaitIntervalMs);
+    stayingOpenTimer.start(stayingOpenIntervalMs);
 }
 
 void Door::finishWaiting() {

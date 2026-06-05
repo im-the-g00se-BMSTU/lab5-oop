@@ -1,8 +1,8 @@
 #ifndef FACADE_H
 #define FACADE_H
 
-#include "constants.h"
 #include "dispatcher.h"
+#include "dispatcher_pool.h"
 #include "manager.h"
 #include "panel.h"
 #include "manager_strategy.h"
@@ -30,6 +30,7 @@ class Facade : public QObject {
     Q_OBJECT
 
 private:
+    DispatcherPool* dispatcherPool;
     Manager* manager;
     QGroupBox* liftGroupBox;
     QGroupBox* callGroupBox;
@@ -57,17 +58,16 @@ public:
     explicit Facade(
         int liftCount,
         const QString& audience,
+        DispatcherPool* dispatcherPool,
         ManagerStrategy* serviceStrategy,
         QWidget* parent = nullptr
     );
+    ~Facade() override;
 
     int stretchFactor() const;
     QWidget* liftWidget() const;
     QWidget* callWidget() const;
 
-signals:
-    void eventReported(QString message);
-    void messageBoxRequested(QString message);
 };
 
 #endif // FACADE_H

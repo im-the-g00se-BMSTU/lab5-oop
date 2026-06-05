@@ -14,8 +14,12 @@ public:
 
     bool containsFloor(int floor) const {
         bool found = false;
-        for (int pendingFloor : pendingFloors)
-            found = found || pendingFloor == floor;
+        for (int pendingFloor : pendingFloors) {
+            if (pendingFloor == floor) {
+                found = true;
+                break;
+            }
+        }
         return found;
     }
 

@@ -5,26 +5,32 @@
 
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent),
-    ui(new Ui::MainWindow),
-    logger(new Logger(this)) {
+    ui(new Ui::MainWindow) {
 
     ui->setupUi(this);
     ui->callLayout->addStretch(1);
 
-    if (Constants::studentLiftCount > 0)
+    if (studentLiftCount > 0) {
+        DispatcherPool* studentDispatcherPool = new DispatcherPool();
         addLiftGroup(new Facade(
-        Constants::studentLiftCount,
-        "для студентов",
-        new StudentLiftStrategy(),
-        this
+            studentLiftCount,
+            "для студентов",
+            studentDispatcherPool,
+            new StudentLiftStrategy(*studentDispatcherPool),
+            this
         ));
-    if (Constants::teacherLiftCount > 0)
+    }
+
+    if (teacherLiftCount > 0) {
+        DispatcherPool* teacherDispatcherPool = new DispatcherPool();
         addLiftGroup(new Facade(
-        Constants::teacherLiftCount,
-        "для преподавателей",
-        new TeacherLiftStrategy(),
-        this
+            teacherLiftCount,
+            "для преподавателей",
+            teacherDispatcherPool,
+            new TeacherLiftStrategy(*teacherDispatcherPool),
+            this
         ));
+    }
 
     ui->callLayout->addStretch(1);
     setMinimumWidth(sizeHint().width());
@@ -40,6 +46,4 @@ void MainWindow::addLiftGroup(Facade* group) {
     ui->callLayout->addWidget(group->callWidget());
     ui->rootLayout->addWidget(group->liftWidget(), group->stretchFactor());
     liftGroups.push_back(group);
-    connect(group, &Facade::eventReported, logger, &Logger::write);
-    connect(group, &Facade::messageBoxRequested, logger, &Logger::showMessageBox);
 }

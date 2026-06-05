@@ -3,21 +3,18 @@
 
 #include <QDebug>
 #include <QMessageBox>
-#include <QObject>
+#include <QString>
 
-class Logger : public QObject {
-    Q_OBJECT
-
+class Logger {
 public:
-    explicit Logger(QObject* parent = nullptr)
-        : QObject(parent) {}
-
-public slots:
-    void write(QString message) const {
+    static void write(const QString& message) {
         qDebug().noquote() << message;
     }
+};
 
-    void showMessageBox(QString message) const {
+class MessageBoxReporter {
+public:
+    static void show(const QString& message) {
         QMessageBox::information(nullptr, "Message", message);
     }
 };

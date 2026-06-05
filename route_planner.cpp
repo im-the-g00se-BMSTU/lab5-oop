@@ -2,29 +2,29 @@
 
 // ======== public ========
 
-bool RoutePlanner::isAhead(int floor, int currentFloor, int direction) const {
-    return direction == Constants::noDirection && floor != currentFloor
-           || (direction == Constants::upDirection && floor > currentFloor)
-           || (direction == Constants::downDirection && floor < currentFloor);
+bool RoutePlanner::isAhead(int floor, int currentFloor, Direction direction) const {
+    return direction == Direction::None && floor != currentFloor
+           || (direction == Direction::Up && floor > currentFloor)
+           || (direction == Direction::Down && floor < currentFloor);
 }
 
 // ======== private ========
 
-int RoutePlanner::chooseAlongDirection(int currentFloor, int direction, const std::vector<int>& requests) const {
+int RoutePlanner::chooseAlongDirection(int currentFloor, Direction direction, const std::vector<int>& requests) const {
     int destination = currentFloor;
     for (int requestFloor : requests)
         if (isAhead(requestFloor, currentFloor, direction)
-            && (direction == Constants::upDirection && requestFloor > destination
-                || direction == Constants::downDirection && requestFloor < destination))
+            && (direction == Direction::Up && requestFloor > destination
+                || direction == Direction::Down && requestFloor < destination))
             destination = requestFloor;
     return destination;
 }
 
 int RoutePlanner::chooseNearest(int currentFloor, const std::vector<int>& requests) const {
     int destination = currentFloor;
-    int bestDistance = Constants::floorCount;
+    int bestDistance = std::numeric_limits<int>::max();
     for (int requestFloor : requests) {
-        int distance = Constants::distanceBetweenFloors(requestFloor, currentFloor);
+        int distance = std::abs(requestFloor - currentFloor);
         if (distance < bestDistance) {
             bestDistance = distance;
             destination = requestFloor;
@@ -35,7 +35,7 @@ int RoutePlanner::chooseNearest(int currentFloor, const std::vector<int>& reques
 
 // ======== public ========
 
-int RoutePlanner::nextDestination(int currentFloor, int direction, const std::vector<int>& requests) const {
+int RoutePlanner::nextDestination(int currentFloor, Direction direction, const std::vector<int>& requests) const {
     int destination = chooseAlongDirection(currentFloor, direction, requests);
     if (destination == currentFloor)
         destination = chooseNearest(currentFloor, requests);

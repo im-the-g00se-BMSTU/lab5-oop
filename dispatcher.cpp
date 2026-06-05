@@ -2,12 +2,13 @@
 
 // ======== public ========
 
-Dispatcher::Dispatcher(QObject* parent)
+Dispatcher::Dispatcher(const QString& reportPrefix, QObject* parent)
     : QObject(parent),
-    car(new Car(this)),
+    cabin(new Cabin(this)),
     doors(new Door(this)),
     state(DispatcherState::Idle),
-    destinationFloor(1) {
+    destinationFloor(1),
+    reportPrefix(reportPrefix) {
     setupStateNames();
     connectParts();
 }
@@ -30,16 +31,24 @@ QString Dispatcher::stateText() const {
     return text;
 }
 
+void Dispatcher::reportEvent(const QString& message) const {
+    Logger::write(reportPrefix + message);
+}
+
+void Dispatcher::reportMessageBox(const QString& message) const {
+    MessageBoxReporter::show(reportPrefix + message);
+}
+
 void Dispatcher::changeState(DispatcherState nextState) {
     state = nextState;
     emit dispatcherStateChanged(stateText());
-    emit eventReported("Состояние диспетчера: " + stateText());
+    reportEvent("Состояние диспетчера: " + stateText());
 }
 
 void Dispatcher::connectParts() {
-    connect(car, &Car::floorReached, this, &Dispatcher::handleFloorReached);
-    connect(car, &Car::movementStopped, this, &Dispatcher::handleMovementStopped);
-    connect(car, &Car::stateChanged, this, &Dispatcher::carStateChanged);
+    connect(cabin, &Cabin::floorReached, this, &Dispatcher::handleFloorReached);
+    connect(cabin, &Cabin::movementStopped, this, &Dispatcher::handleMovementStopped);
+    connect(cabin, &Cabin::stateChanged, this, &Dispatcher::cabinStateChanged);
     connect(doors, &Door::opened, this, &Dispatcher::handleDoorsOpened);
     connect(doors, &Door::closed, this, &Dispatcher::handleDoorsClosed);
     connect(doors, &Door::stateChanged, this, &Dispatcher::doorStateChanged);
@@ -48,15 +57,15 @@ void Dispatcher::connectParts() {
 // ======== public slots ========
 
 void Dispatcher::addRequest(int floor) {
-    if (!Constants::isFloorValid(floor))
-        emit eventReported("Некорректный этаж в заявке: " + QString::number(floor));
+    if (!isFloorValid(floor))
+        reportEvent("Некорректный этаж в заявке: " + QString::number(floor));
     else if (isStuck())
-        emit eventReported("Лифт застрял и не можен обработать запрос");
-    else if (state == DispatcherState::ServingFloor && floor == car->currentFloor())
+        reportEvent("Лифт застрял и не можен обработать запрос");
+    else if (state == DispatcherState::ServingFloor && floor == cabin->currentFloor())
         emit requestServed(floor);
     else {
         storage.add(floor);
-        emit eventReported("Получен вызов на этаж " + QString::number(floor));
+        reportEvent("Получен вызов на этаж " + QString::number(floor));
         processNextRequest();
     }
 }
@@ -66,7 +75,7 @@ void Dispatcher::addRequest(int floor) {
 void Dispatcher::processNextRequest() {
     if (state == DispatcherState::Idle && !storage.isEmpty()) {
         selectDestination();
-        if (destinationFloor == car->currentFloor())
+        if (destinationFloor == cabin->currentFloor())
             serveCurrentFloor();
         else
             startTrip();
@@ -75,27 +84,27 @@ void Dispatcher::processNextRequest() {
 
 void Dispatcher::selectDestination() {
     changeState(DispatcherState::SelectingTarget);
-    destinationFloor = planner.nextDestination(car->currentFloor(), car->direction(), storage.requests());
+    destinationFloor = planner.nextDestination(cabin->currentFloor(), cabin->direction(), storage.requests());
     emit targetFloorChanged(destinationFloor);
-    emit eventReported("Новый целевой этаж: " + QString::number(destinationFloor));
+    reportEvent("Новый целевой этаж: " + QString::number(destinationFloor));
 }
 
 void Dispatcher::startTrip() {
-    int direction = Constants::noDirection;
-    if (destinationFloor > car->currentFloor())
-        direction = Constants::upDirection;
-    if (destinationFloor < car->currentFloor())
-        direction = Constants::downDirection;
+    Direction direction = Direction::None;
+    if (destinationFloor > cabin->currentFloor())
+        direction = Direction::Up;
+    if (destinationFloor < cabin->currentFloor())
+        direction = Direction::Down;
     changeState(DispatcherState::Moving);
-    emit eventReported("Движение началось");
-    car->prepareForMovement(direction);
-    car->beginMovement();
+    reportEvent("Движение началось");
+    cabin->prepareForMovement(direction);
+    cabin->beginMovement();
 }
 
 void Dispatcher::serveCurrentFloor() {
     changeState(DispatcherState::ServingFloor);
-    car->lockCabin();
-    int floor = car->currentFloor();
+    cabin->lockCabin();
+    int floor = cabin->currentFloor();
     if (storage.containsFloor(floor))
         emit requestServed(floor);
     doors->openDoors();
@@ -106,32 +115,32 @@ void Dispatcher::serveCurrentFloor() {
 void Dispatcher::handleFloorReached(int floor) {
     if (!isStuck()) {
     emit currentFloorChanged(floor);
-    emit eventReported("Лифт прибыл на этаж " + QString::number(floor));
+    reportEvent("Лифт прибыл на этаж " + QString::number(floor));
     if (storage.containsFloor(floor))
-        car->stopAtCurrentFloor();
+        cabin->stopAtCurrentFloor();
     }
 }
 
 void Dispatcher::handleMovementStopped(int floor) {
     if (!isStuck()) {
-    emit eventReported("Кабина остановилась на этаже " + QString::number(floor));
+    reportEvent("Кабина остановилась на этаже " + QString::number(floor));
     serveCurrentFloor();
     }
 }
 
 void Dispatcher::handleDoorsOpened() {
     if (!isStuck())
-    emit eventReported("Двери открылись");
+    reportEvent("Двери открылись");
 }
 
 void Dispatcher::handleDoorsClosed() {
     if (!isStuck()) {
-    emit eventReported("Двери закрылись");
-    int floor = car->currentFloor();
+    reportEvent("Двери закрылись");
+    int floor = cabin->currentFloor();
     if (storage.containsFloor(floor))
         emit requestCompleted(floor);
     storage.eraseFloor(floor);
-    car->releaseCabin();
+    cabin->releaseCabin();
     changeState(DispatcherState::Idle);
     processNextRequest();
     }
@@ -140,34 +149,38 @@ void Dispatcher::handleDoorsClosed() {
 // ======== public ========
 
 int Dispatcher::currentFloor() const {
-    return car->currentFloor();
+    return cabin->currentFloor();
 }
 
-int Dispatcher::direction() const {
-    return car->direction();
+Direction Dispatcher::direction() const {
+    return cabin->direction();
 }
 
 bool Dispatcher::isStuck() const {
     return state == DispatcherState::Stuck;
 }
 
+bool Dispatcher::isFloorValid(int floor) {
+    return floor >= 1 && floor <= floorCount;
+}
+
 bool Dispatcher::canServeHallRequest(int floor) const {
     bool canServe = false;
     if (!isStuck())
         canServe = state == DispatcherState::Idle && storage.isEmpty()
-                   || (state == DispatcherState::ServingFloor && floor == car->currentFloor());
+                   || (state == DispatcherState::ServingFloor && floor == cabin->currentFloor());
     if (!isStuck() && !canServe)
-        canServe = planner.isAhead(floor, car->currentFloor(), car->direction());
+        canServe = planner.isAhead(floor, cabin->currentFloor(), cabin->direction());
     return canServe;
 }
 
 void Dispatcher::makeStuck() {
     if (!isStuck()) {
         doors->stopDoors();
-        car->lockCabin();
-        destinationFloor = car->currentFloor();
+        cabin->lockCabin();
+        destinationFloor = cabin->currentFloor();
         emit targetFloorChanged(destinationFloor);
         changeState(DispatcherState::Stuck);
-        emit messageBoxRequested("Лифт застрял");
+        reportMessageBox("Лифт застрял");
     }
 }

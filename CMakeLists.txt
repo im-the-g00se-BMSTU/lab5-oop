@@ -19,11 +19,12 @@ set(PROJECT_SOURCES
     mainwindow.ui
     door.cpp
     door.h
-    car.cpp
-    car.h
-    constants.h
+    cabin.cpp
+    cabin.h
+    direction.h
     dispatcher.cpp
     dispatcher.h
+    dispatcher_pool.h
     facade.cpp
     facade.h
     panel.cpp
@@ -36,6 +37,7 @@ set(PROJECT_SOURCES
     route_planner.cpp
     route_planner.h
     logger.h
+
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

@@ -1,8 +1,6 @@
 #ifndef DOOR_H
 #define DOOR_H
 
-#include "constants.h"
-
 #include <QObject>
 #include <QTimer>
 #include <map>
@@ -11,6 +9,10 @@ class Door : public QObject {
     Q_OBJECT
 
 private:
+    static constexpr int openingIntervalMs = 1000;
+    static constexpr int closingIntervalMs = 1000;
+    static constexpr int stayingOpenIntervalMs = 1500;
+
     enum class DoorState {
         Opening,
         Open,

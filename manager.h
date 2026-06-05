@@ -1,14 +1,14 @@
 #ifndef MANAGER_H
 #define MANAGER_H
 
-#include "constants.h"
 #include "dispatcher.h"
+#include "dispatcher_pool.h"
+#include "logger.h"
 #include "manager_strategy.h"
 
 #include <new>
 #include <QObject>
 #include <QString>
-#include <vector>
 
 class Dispatcher;
 
@@ -16,13 +16,12 @@ class Manager : public QObject {
     Q_OBJECT
 
 private:
-    std::vector<Dispatcher*> dispatchers;
+    DispatcherPool& dispatcherPool;
     ManagerStrategy* serviceStrategy;
     int dispatcherCount;
     QString dispatcherTypeName;
 
     void createDispatchers();
-    void connectDispatcherReports();
     void connectStrategyReports();
     bool isLiftIndexValid(int liftIndex) const;
 
@@ -43,10 +42,7 @@ public slots:
     void requestSpecificLift(int liftIndex, int floor);
 
 signals:
-    void eventReported(QString message);
-    void messageBoxRequested(QString message);
     void cabinRequestCanceled(int liftIndex, int floor);
-    void liftEventReported(int liftIndex, QString message);
     void hallRequestAssigned(int liftIndex, int floor);
     void hallRequestCanceled(int floor);
     void liftAnimationStarted(int liftIndex, int floor, QString resourcePath);

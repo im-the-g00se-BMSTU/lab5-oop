@@ -54,7 +54,7 @@ UiPanel::UiPanel(const QString& title, QWidget* parent)
     dispatcherStateName("IDLE") {
     setProperty("liftPanel", true);
     setupLayout();
-    drawCarAtFloor(1);
+    drawCabinAtFloor(1);
 }
 
 // ======== private ========
@@ -77,17 +77,17 @@ void UiPanel::setupLayout() {
 }
 
 void UiPanel::addShaftRows(QGridLayout* layout) {
-    for (int floor = Constants::floorCount; floor >= 1; --floor) {
+    for (int floor = Dispatcher::floorCount; floor >= 1; --floor) {
         QLabel* shaftLabel = createShaftLabel();
-        int row = Constants::floorCount - floor;
+        int row = Dispatcher::floorCount - floor;
         layout->addWidget(createFloorLabel(QString::number(floor)), row, 0);
-        layout->addWidget(shaftLabel, row, 1, 1, Constants::floorCount, Qt::AlignCenter);
+        layout->addWidget(shaftLabel, row, 1, 1, Dispatcher::floorCount, Qt::AlignCenter);
         shaftLabels.insert(shaftLabels.begin(), shaftLabel);
     }
 }
 
 void UiPanel::addCabinButtons(QHBoxLayout* layout) {
-    for (int floor = 1; floor <= Constants::floorCount; ++floor) {
+    for (int floor = 1; floor <= Dispatcher::floorCount; ++floor) {
         QPushButton* button = createCabinButton(floor);
         layout->addWidget(button);
         cabinButtons.push_back(button);
@@ -134,13 +134,13 @@ void UiPanel::addStatusRows(QGridLayout* layout) {
     layout->addWidget(createStatusNameLabel("Диспетчер"), row + 2, 0);
     layout->addWidget(statusLabels.dispatcherState, row + 2, 1);
     layout->addWidget(createStatusNameLabel("Кабина"), row + 3, 0);
-    layout->addWidget(statusLabels.carState, row + 3, 1);
+    layout->addWidget(statusLabels.cabinState, row + 3, 1);
     layout->addWidget(createStatusNameLabel("Двери"), row + 4, 0);
     layout->addWidget(statusLabels.doorState, row + 4, 1);
     layout->setColumnStretch(1, 1);
 }
 
-void UiPanel::drawCarAtFloor(int floor) {
+void UiPanel::drawCabinAtFloor(int floor) {
     int index = floor - 1;
     for (QLabel* label : shaftLabels) {
         label->setMovie(nullptr);
@@ -176,7 +176,7 @@ void UiPanel::drawCarAtFloor(int floor) {
 
 void UiPanel::setCurrentFloor(int floor) {
     statusLabels.currentFloor->setText(QString::number(floor));
-    drawCarAtFloor(floor);
+    drawCabinAtFloor(floor);
 }
 
 void UiPanel::setTargetFloor(int floor) {
@@ -189,11 +189,11 @@ void UiPanel::setDispatcherState(const QString& state) {
     setCabinButtonsEnabled(state != stuckDispatcherStateName);
     if (state == stuckDispatcherStateName)
         clearCabinButtons();
-    drawCarAtFloor(statusLabels.currentFloor->text().toInt());
+    drawCabinAtFloor(statusLabels.currentFloor->text().toInt());
 }
 
-void UiPanel::setCarState(const QString& state) {
-    statusLabels.carState->setText(state);
+void UiPanel::setCabinState(const QString& state) {
+    statusLabels.cabinState->setText(state);
 }
 
 void UiPanel::setDoorState(const QString& state) {
@@ -205,11 +205,11 @@ void UiPanel::clearCabinRequest(int floor) {
 }
 
 void UiPanel::startAnimation(const QString& resourcePath, int floor) {
-    if (Constants::isFloorValid(floor)) {
+    if (Dispatcher::isFloorValid(floor)) {
         stopAnimation(floor);
         QMovie* movie = new QMovie(resourcePath, QByteArray(), this);
         animationMovies[floor] = movie;
-        drawCarAtFloor(statusLabels.currentFloor->text().toInt());
+        drawCabinAtFloor(statusLabels.currentFloor->text().toInt());
         movie->start();
     }
 }
@@ -220,6 +220,6 @@ void UiPanel::stopAnimation(int floor) {
         animation->second->stop();
         delete animation->second;
         animationMovies.erase(animation);
-        drawCarAtFloor(statusLabels.currentFloor->text().toInt());
+        drawCabinAtFloor(statusLabels.currentFloor->text().toInt());
     }
 }
